@@ -1,0 +1,56 @@
+# ====== 敏感文件（切勿提交）======
+.env
+*.key
+config.local.yaml
+
+# ====== 实验结果（体积大，按需提交）======
+results/raw/
+results/metrics/
+
+# ====== 数据集样本（体积大，按需提交）======
+data/samples/webshell/
+data/samples/obfuscated/
+data/samples/sqli/
+
+# ====== Python 通用忽略 ======
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ====== 虚拟环境 ======
+venv/
+env/
+ENV/
+.venv/
+
+# ====== IDE ======
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ====== 操作系统 ======
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ====== 日志 ======
+*.log
+logs/

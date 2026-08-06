@@ -1,0 +1,59 @@
+# ============================================================
+# WebShell LLM Detector - 全局配置文件
+# ============================================================
+# 注意：API 密钥通过环境变量管理，不要在此文件中硬编码
+#   - DEEPSEEK_API_KEY  : DeepSeek 平台 API Key
+#   - DASHSCOPE_API_KEY : 阿里云百炼平台 API Key
+# ============================================================
+
+# ---- LLM API 提供商配置 ----
+providers:
+  deepseek:
+    base_url: "https://api.deepseek.com"
+    api_key_env: "DEEPSEEK_API_KEY"          # 从环境变量读取
+    model: "deepseek-v4-flash"                # DeepSeek V4 Flash（2026-07-24 起替代 deepseek-chat）
+    max_tokens: 4096
+    temperature: 0.1                          # 低温度保证结果稳定可复现
+
+  qwen:
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    api_key_env: "DASHSCOPE_API_KEY"          # 从环境变量读取
+    model: "qwen3.6-plus"                     # 通义千问 3.6 Plus（百炼平台最新）
+    max_tokens: 4096
+    temperature: 0.1
+
+# ---- 数据集路径配置 ----
+dataset:
+  root_dir: "data/samples"
+  labels_file: "data/labels.csv"
+  categories:
+    benign: "data/samples/benign"
+    webshell: "data/samples/webshell"
+    obfuscated: "data/samples/obfuscated"
+    sqli: "data/samples/sqli"
+
+# ---- 实验结果输出配置 ----
+output:
+  root_dir: "results"
+  raw_dir: "results/raw"
+  metrics_dir: "results/metrics"
+  charts_dir: "results/charts"
+
+# ---- 批量检测默认参数 ----
+detection:
+  default_provider: "deepseek"
+  default_strategy: "zero_shot"               # zero_shot | few_shot | cot
+  retry_max: 3                                # API 调用失败重试次数
+  retry_delay: 2.0                            # 重试间隔（秒），指数退避基数
+  rate_limit_delay: 0.5                       # 两次 API 调用之间的间隔（秒）
+  run_repeats: 3                              # 每条样本重复运行次数（取多数投票）
+
+# ---- 混淆变种生成参数 ----
+obfuscation:
+  types:
+    - base64
+    - string_split
+    - xor
+    - comment_bypass
+  source_dir: "data/samples/webshell"         # 混淆的源样本目录
+  output_dir: "data/samples/obfuscated"       # 混淆变种输出目录
