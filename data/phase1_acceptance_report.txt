@@ -1,0 +1,47 @@
+============================================================
+  阶段一验收测试报告
+  时间: 2026-08-07 11:41:07
+  API 测试: 执行
+============================================================
+
+  [PASS] 验收1: API 连通性验证
+    DEEPSEEK_API_KEY: sk-0***8a4b
+    DASHSCOPE_API_KEY: sk-w***-eNj
+    DeepSeek: 连接成功 | 模型: deepseek-v4-flash | Token: 292 | 延迟: 2924ms | 响应: {'status': 'ok', 'message': '连通性验证成功'}
+    通义千问: 连接成功 | 模型: qwen3.6-plus | Token: 373 | 延迟: 6368ms | 响应: {'status': 'ok', 'message': '连通性验证成功'}
+
+  [PASS] 验收2: 数据集完整性检查
+    labels.csv 记录数: 515
+    所有 labels.csv 中引用的文件均存在
+    良性样本: 268, 恶意样本: 247
+    良性/恶意比例: 268:247 (均衡度: 0.92)
+    类别 benign: 268 个
+    类别 webshell: 65 个
+    类别 sqli: 82 个
+    类别 obfuscated: 100 个
+
+  [PASS] 验收3: 混淆变种质量检查
+    base64: 29 个文件，抽样检查通过
+    comment_bypass: 21 个文件，抽样检查通过
+    string_split: 21 个文件，抽样检查通过
+    xor: 29 个文件，抽样检查通过
+
+  [PASS] 验收4: 端到端流程测试
+    步骤1 - 加载 515 条样本记录
+    步骤2 - 选取测试样本:
+      良性: laravel_GateEvaluated.php (laravel)
+      恶意: johnTroony_php_webshells_configkillerionkros.php (johnTroony_webshell)
+      良性代码长度: 969 字符
+      恶意代码长度: 7616 字符
+    步骤3 - 构造提示词（system + user）
+    步骤4 - 良性样本检测结果: is_malicious=False, confidence=1.0, tokens=491, latency=1303ms
+      [正确] 良性样本被识别为非恶意
+    步骤5 - 恶意样本检测结果: is_malicious=True, confidence=0.8, tokens=1147, latency=4215ms
+      [正确] 恶意样本被识别为恶意
+    步骤6 - JSON 结构化输出格式验证通过
+
+============================================================
+  验收结果: 4/4 通过
+============================================================
+  [结论] 阶段一验收全部通过，可以进入阶段二
+============================================================
