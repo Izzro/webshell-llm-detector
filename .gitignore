@@ -12,6 +12,10 @@ data/samples/webshell/
 data/samples/obfuscated/
 data/samples/sqli/
 
+# ====== 临时下载目录 ======
+data/_temp_benign/
+data/_temp_malicious/
+
 # ====== Python 通用忽略 ======
 __pycache__/
 *.py[cod]

@@ -27,16 +27,52 @@ from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
+# 项目根目录（src 的上一级）
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # config.yaml 的默认路径（相对于项目根目录）
-DEFAULT_CONFIG_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "config.yaml"
-)
+DEFAULT_CONFIG_PATH = os.path.join(PROJECT_ROOT, "config.yaml")
+
+# .env 文件的默认路径
+DEFAULT_ENV_PATH = os.path.join(PROJECT_ROOT, ".env")
+
+
+def load_env(env_path: str | None = None) -> None:
+    """
+    从 .env 文件加载环境变量到 os.environ。
+    仅加载尚未在系统环境变量中设置的项，不覆盖已有值。
+    文件格式为 KEY=VALUE，忽略注释行（以 # 开头）和空行。
+
+    Args:
+        env_path: .env 文件路径，为 None 时使用默认路径
+    """
+    path = env_path or DEFAULT_ENV_PATH
+    if not os.path.exists(path):
+        return
+
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            # 跳过注释和空行
+            if not line or line.startswith("#"):
+                continue
+            # 解析 KEY=VALUE
+            if "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            # 仅在系统环境变量未设置时填充
+            if key and value and key not in os.environ:
+                os.environ[key] = value
+
+    logger.debug(f"已从 {path} 加载环境变量")
 
 
 def load_config(config_path: str | None = None) -> dict:
     """
     加载 config.yaml 配置文件。
+    调用前会自动尝试从 .env 文件加载环境变量。
 
     Args:
         config_path: 配置文件路径，为 None 时使用默认路径
@@ -44,6 +80,9 @@ def load_config(config_path: str | None = None) -> dict:
     Returns:
         配置字典
     """
+    # 先从 .env 文件加载环境变量
+    load_env()
+
     path = config_path or DEFAULT_CONFIG_PATH
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)

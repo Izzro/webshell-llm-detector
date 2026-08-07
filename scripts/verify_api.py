@@ -19,18 +19,17 @@ import time
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, project_root)
 
-from src.llm_client import LLMClient, load_config
+from src.llm_client import LLMClient, load_config, load_env
 
 
 def check_env_var(var_name: str) -> bool:
-    """检查环境变量是否已设置。"""
+    """检查环境变量是否已设置（含 .env 文件来源）。"""
     value = os.environ.get(var_name)
     if not value:
-        print(f"  [缺失] 环境变量 {var_name} 未设置")
-        print(f"         请运行以下命令设置（PowerShell 临时生效）：")
-        print(f'         $env:{var_name} = "你的API密钥"')
-        print(f"         或永久设置：")
-        print(f'         [System.Environment]::SetEnvironmentVariable("{var_name}", "你的密钥", "User")')
+        print(f"  [缺失] {var_name} 未设置")
+        print(f"         方式1：编辑项目根目录的 .env 文件，填入 {var_name}=你的密钥")
+        print(f"         方式2：PowerShell 临时设置 -> $env:{var_name} = \"你的API密钥\"")
+        print(f"         方式3：永久设置 -> [System.Environment]::SetEnvironmentVariable(\"{var_name}\", \"你的密钥\", \"User\")")
         return False
     # 脱敏显示（只显示前4位和后4位）
     masked = value[:4] + "*" * (len(value) - 8) + value[-4:] if len(value) > 8 else "****"
@@ -82,6 +81,17 @@ def main():
     print("  WebShell LLM Detector - API 连通性验证")
     print("  T1.1 · 阶段一环境验证")
     print("=" * 60)
+
+    # 先从 .env 文件加载环境变量（不覆盖已有的系统环境变量）
+    print("\n[步骤 0] 加载 .env 文件")
+    print("-" * 60)
+    env_path = os.path.join(project_root, ".env")
+    if os.path.exists(env_path):
+        load_env(env_path)
+        print(f"  .env 文件已加载: {env_path}")
+    else:
+        print(f"  .env 文件不存在: {env_path}")
+        print(f"  将仅依赖系统环境变量")
 
     # 步骤 1：检查环境变量
     print("\n[步骤 1] 检查 API 密钥环境变量")
