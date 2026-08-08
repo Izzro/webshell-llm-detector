@@ -1,0 +1,28 @@
+{
+  "export_time": "2026-08-07T16:35:29.450150",
+  "total_samples": 515,
+  "accuracy": 0.9728,
+  "precision": 1.0,
+  "recall": 0.9433,
+  "f1": 0.9708,
+  "tp": 233,
+  "tn": 268,
+  "fp": 0,
+  "fn": 14,
+  "unclassified": 5,
+  "obfuscation_recall": 0.95,
+  "obf_total": 100,
+  "obf_correct": 95,
+  "obf_by_type": {
+    "base64": 0.931,
+    "comment_bypass": 0.9524,
+    "string_split": 1.0,
+    "xor": 0.931
+  },
+  "type_consistency": 0.8907,
+  "avg_latency_ms": 4663.2,
+  "max_latency_ms": 33872,
+  "min_latency_ms": 0,
+  "total_tokens": 2500293,
+  "avg_tokens": 4854.9
+}

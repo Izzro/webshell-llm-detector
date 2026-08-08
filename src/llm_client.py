@@ -134,8 +134,13 @@ class LLMClient:
         self.retry_max = detection_cfg.get("retry_max", 3)
         self.retry_delay = detection_cfg.get("retry_delay", 2.0)
 
-        # 创建 OpenAI 兼容客户端
-        self.client = OpenAI(base_url=self.base_url, api_key=self.api_key)
+        # 创建 OpenAI 兼容客户端（带超时保护）
+        self.client = OpenAI(
+            base_url=self.base_url,
+            api_key=self.api_key,
+            timeout=120.0,       # 单次请求最大 120 秒
+            max_retries=2,       # SDK 层最多重试 2 次（应用层还有 retry_max）
+        )
 
         logger.info(
             f"LLMClient 初始化完成: provider={provider}, model={self.model}"

@@ -6,6 +6,8 @@ config.local.yaml
 # ====== 实验结果（体积大，按需提交）======
 results/raw/
 results/metrics/
+results/cache/
+results/logs/
 
 # ====== 数据集样本（体积大，按需提交）======
 data/samples/webshell/

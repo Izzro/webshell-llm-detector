@@ -1,0 +1,6 @@
+﻿file_path,filename,category,true_label,true_malware_type,true_obfuscation,pred_label,pred_malware_type,pred_subtype,pred_obfuscation,pred_confidence,pred_risk_level,indicators,reason,parse_error,latency_ms,total_tokens,prompt_tokens,completion_tokens,correct
+data\samples\benign\flask_examples___init__.py,flask_examples___init__.py,benign,benign,none,none,benign,none,none,none,1.0,none,,代码为标准的 Flask 应用工厂和 Celery 集成，无任何恶意函数调用或混淆特征，属于正常业务框架代码。,,2835,962,810,152,1
+data\samples\benign\flask_examples___init___1.py,flask_examples___init___1.py,benign,benign,none,none,benign,none,none,none,0.95,none,,这是标准的Flask应用工厂函数代码，用于创建和配置应用实例，注册路由和蓝图。代码中仅使用os.makedirs确保实例目录存在，没有执行用户输入或系统命令，不包含任何恶意行为。,,2235,1068,896,172,1
+data\samples\benign\flask_examples___init___2.py,flask_examples___init___2.py,benign,benign,none,none,benign,none,none,none,1.0,none,,代码是 Flask 框架的标准初始化导入模块，所有语句均为合法的 import 导入，未包含任何恶意代码或危险函数调用。,,1424,1159,1027,132,1
+data\samples\benign\flask_examples___init___3.py,flask_examples___init___3.py,benign,benign,none,none,benign,none,none,none,1.0,none,,Flask 框架 json 模块的合法代码，仅做 JSON 序列化与反序列化，无危险函数或恶意行为,,3138,2383,2005,378,1
+data\samples\benign\flask_examples_auth.py,flask_examples_auth.py,benign,benign,none,none,benign,none,正常认证功能,none,1.0,none,,代码为Flask认证模块，使用参数化查询和安全的密码哈希，无恶意行为。,,3426,1609,1264,345,1

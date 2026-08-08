@@ -1,0 +1,25 @@
+{
+  "export_time": "2026-08-07T15:18:23.135224",
+  "total_samples": 3,
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "tp": 3,
+  "tn": 0,
+  "fp": 0,
+  "fn": 0,
+  "unclassified": 0,
+  "obfuscation_recall": 1.0,
+  "obf_total": 3,
+  "obf_correct": 3,
+  "obf_by_type": {
+    "base64": 1.0
+  },
+  "type_consistency": 1.0,
+  "avg_latency_ms": 25171.3,
+  "max_latency_ms": 31750,
+  "min_latency_ms": 18550,
+  "total_tokens": 65953,
+  "avg_tokens": 21984.3
+}

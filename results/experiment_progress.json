@@ -1,0 +1,34 @@
+{
+  "completed": [
+    "1",
+    "2",
+    "3"
+  ],
+  "current": null,
+  "experiments": {
+    "1": {
+      "provider": "deepseek",
+      "strategy": "zero_shot",
+      "status": "completed",
+      "start": "2026-08-07 15:32:09",
+      "end": "2026-08-07 16:35:29",
+      "elapsed_minutes": 63.3
+    },
+    "2": {
+      "provider": "deepseek",
+      "strategy": "few_shot",
+      "status": "completed",
+      "start": "2026-08-07 16:35:39",
+      "end": "2026-08-07 17:13:30",
+      "elapsed_minutes": 37.8
+    },
+    "3": {
+      "provider": "deepseek",
+      "strategy": "cot",
+      "status": "completed",
+      "start": "2026-08-07 17:13:40",
+      "end": "2026-08-07 19:25:06",
+      "elapsed_minutes": 131.4
+    }
+  }
+}

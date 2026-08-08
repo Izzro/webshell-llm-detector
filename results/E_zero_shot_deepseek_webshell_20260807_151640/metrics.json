@@ -1,0 +1,23 @@
+{
+  "export_time": "2026-08-07T15:16:40.727894",
+  "total_samples": 5,
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "tp": 5,
+  "tn": 0,
+  "fp": 0,
+  "fn": 0,
+  "unclassified": 0,
+  "obfuscation_recall": 0.0,
+  "obf_total": 0,
+  "obf_correct": 0,
+  "obf_by_type": {},
+  "type_consistency": 1.0,
+  "avg_latency_ms": 6151.4,
+  "max_latency_ms": 8792,
+  "min_latency_ms": 3950,
+  "total_tokens": 42693,
+  "avg_tokens": 8538.6
+}
