@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>论文图表 · 基于大语言模型的脚本类恶意代码识别研究</title>
+<script src="echarts.min.js"></script>
+<style>
+:root {
+  --bg: #f8fafc; --bg2: #fff; --ink: #0f172a; --muted: #64748b;
+  --rule: #e2e8f0; --accent: #1d4ed8; --accent2: #dc2626; --accent3: #059669;
+  --font: 'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--ink); line-height: 1.6; }
+.page { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; }
+h2 { font-size: 1.2rem; font-weight: 700; margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--rule); }
+h2 .num { color: var(--accent); margin-right: 0.5rem; }
+.subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.95rem; }
+.chart-card {
+  background: var(--bg2); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 1.5rem; margin: 1rem 0 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.chart-card .chart-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+.chart-card .chart-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; }
+.chart-container { width: 100%; height: 400px; }
+.chart-container.tall { height: 500px; }
+.arch-svg { width: 100%; height: auto; }
+.note { font-size: 0.82rem; color: var(--muted); margin-top: 0.5rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>论文图表 · 实验评估与分析</h1>
+  <p class="subtitle">基于大语言模型的脚本类恶意代码识别研究 — 7 张论文图表（ECharts 渲染）</p>
+
+  <!-- 图1 系统架构图 -->
+  <h2><span class="num">图1</span>系统架构与数据流</h2>
+  <div class="chart-card">
+    <div class="chart-title">系统架构图</div>
+    <div class="chart-desc">整体架构与数据流：样本库 → 提示词模板 → LLM 客户端 → 结果解析 → 指标计算 → 数据导出</div>
+    <div class="chart-container tall">
+      <svg class="arch-svg" viewBox="0 0 1000 450" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#64748b"/>
+          </marker>
+        </defs>
+        <!-- Sample -->
+        <rect x="20" y="180" width="120" height="60" rx="8" fill="#1d4ed8"/>
+        <text x="80" y="205" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">样本库</text>
+        <text x="80" y="222" text-anchor="middle" fill="#dbeafe" font-size="10">515 条样本</text>
+        <line x1="140" y1="210" x2="175" y2="210" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- SampleLoader -->
+        <rect x="180" y="180" width="120" height="60" rx="8" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+        <text x="240" y="205" text-anchor="middle" fill="#1d4ed8" font-size="12" font-weight="600">SampleLoader</text>
+        <text x="240" y="222" text-anchor="middle" fill="#64748b" font-size="10">样本加载器</text>
+        <line x1="300" y1="210" x2="335" y2="210" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- Prompt Template selection -->
+        <polygon points="390,160 450,210 390,260 330,210" fill="#fff" stroke="#dc2626" stroke-width="1.5"/>
+        <text x="390" y="207" text-anchor="middle" fill="#dc2626" font-size="10" font-weight="600">提示词</text>
+        <text x="390" y="222" text-anchor="middle" fill="#dc2626" font-size="10" font-weight="600">选择</text>
+
+        <!-- Three prompts -->
+        <rect x="455" y="100" width="110" height="40" rx="6" fill="#fef2f2" stroke="#dc2626" stroke-width="1"/>
+        <text x="510" y="124" text-anchor="middle" fill="#dc2626" font-size="11">Zero-shot</text>
+        <line x1="450" y1="195" x2="475" y2="140" stroke="#dc2626" stroke-width="1" stroke-dasharray="4"/>
+
+        <rect x="455" y="190" width="110" height="40" rx="6" fill="#fef2f2" stroke="#dc2626" stroke-width="1"/>
+        <text x="510" y="214" text-anchor="middle" fill="#dc2626" font-size="11">Few-shot</text>
+        <line x1="450" y1="210" x2="475" y2="210" stroke="#dc2626" stroke-width="1.5"/>
+
+        <rect x="455" y="280" width="110" height="40" rx="6" fill="#fef2f2" stroke="#dc2626" stroke-width="1"/>
+        <text x="510" y="304" text-anchor="middle" fill="#dc2626" font-size="11">CoT 思维链</text>
+        <line x1="450" y1="225" x2="475" y2="280" stroke="#dc2626" stroke-width="1" stroke-dasharray="4"/>
+
+        <!-- Arrows to LLMClient -->
+        <line x1="565" y1="120" x2="615" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="565" y1="210" x2="615" y2="210" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="565" y1="300" x2="615" y2="220" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- LLMClient -->
+        <rect x="620" y="180" width="120" height="60" rx="8" fill="#dc2626"/>
+        <text x="680" y="205" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">LLMClient</text>
+        <text x="680" y="222" text-anchor="middle" fill="#fecaca" font-size="10">API 调用</text>
+
+        <!-- Two API providers -->
+        <rect x="640" y="60" width="80" height="35" rx="6" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1"/>
+        <text x="680" y="82" text-anchor="middle" fill="#1d4ed8" font-size="10">DeepSeek</text>
+        <line x1="680" y1="95" x2="680" y2="180" stroke="#1d4ed8" stroke-width="1" stroke-dasharray="3"/>
+
+        <rect x="640" y="325" width="80" height="35" rx="6" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1"/>
+        <text x="680" y="347" text-anchor="middle" fill="#1d4ed8" font-size="10">通义千问</text>
+        <line x1="680" y1="240" x2="680" y2="325" stroke="#1d4ed8" stroke-width="1" stroke-dasharray="3"/>
+
+        <line x1="740" y1="210" x2="775" y2="210" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- ResultParser -->
+        <rect x="780" y="180" width="100" height="60" rx="8" fill="#fff" stroke="#059669" stroke-width="1.5"/>
+        <text x="830" y="205" text-anchor="middle" fill="#059669" font-size="11" font-weight="600">ResultParser</text>
+        <text x="830" y="222" text-anchor="middle" fill="#64748b" font-size="10">结果解析</text>
+        <line x1="830" y1="240" x2="830" y2="270" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- Metrics -->
+        <rect x="780" y="275" width="100" height="50" rx="8" fill="#059669"/>
+        <text x="830" y="298" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Metrics</text>
+        <text x="830" y="314" text-anchor="middle" fill="#d1fae5" font-size="9">指标计算</text>
+        <line x1="830" y1="325" x2="830" y2="355" stroke="#64748b" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- Exporter -->
+        <rect x="780" y="360" width="100" height="50" rx="8" fill="#fff" stroke="#64748b" stroke-width="1.5"/>
+        <text x="830" y="383" text-anchor="middle" fill="#64748b" font-size="11" font-weight="600">Exporter</text>
+        <text x="830" y="398" text-anchor="middle" fill="#64748b" font-size="9">CSV/JSON</text>
+
+        <!-- Two-stage box -->
+        <rect x="440" y="75" width="240" height="260" rx="10" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6"/>
+        <text x="560" y="68" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="600">两阶段管道（创新点）</text>
+
+        <!-- Labels -->
+        <text x="510" y="155" text-anchor="middle" fill="#94a3b8" font-size="9">Stage 1: 快筛</text>
+        <text x="510" y="335" text-anchor="middle" fill="#94a3b8" font-size="9">Stage 2: 复审</text>
+      </svg>
+    </div>
+    <p class="note">图1：系统架构与数据流。两阶段管道（虚线框）为课题创新点：Stage1 Few-shot 快速初筛，置信度&lt;0.9 的样本触发 Stage2 CoT 深度复审。</p>
+  </div>
+
+  <!-- 图2 三组提示词×4指标 -->
+  <h2><span class="num">图2</span>三组提示词策略 × 4 项指标对比</h2>
+  <div class="chart-card">
+    <div class="chart-title">提示词策略横向对比（DeepSeek, 515 样本）</div>
+    <div class="chart-desc">Zero-shot vs Few-shot vs CoT 在准确率、精确率、召回率、F1 四个维度上的对比</div>
+    <div id="chart2" class="chart-container"></div>
+    <p class="note">图2：Few-shot 策略综合表现最优（F1=98.4%），CoT 因输出格式不稳定导致召回率仅 71.3%。</p>
+  </div>
+
+  <!-- 图3 DeepSeek vs 通义千问 -->
+  <h2><span class="num">图3</span>DeepSeek vs 通义千问 — 两阶段方案跨模型对比</h2>
+  <div class="chart-card">
+    <div class="chart-title">两阶段方案跨模型 F1 与各项指标对比</div>
+    <div class="chart-desc">两阶段方案在 DeepSeek 和通义千问两个模型上的表现一致性</div>
+    <div id="chart3" class="chart-container"></div>
+    <p class="note">图3：两阶段方案在两个模型上表现高度一致（F1 均 98.4%），跨模型一致性 99.2%。</p>
+  </div>
+
+  <!-- 图4 混淆类型×识别率热力图 -->
+  <h2><span class="num">图4</span>混淆类型 × 识别率热力图</h2>
+  <div class="chart-card">
+    <div class="chart-title">各实验对不同混淆技术的识别率矩阵</div>
+    <div class="chart-desc">6 组实验在 base64、string_split、xor、comment_bypass 四种混淆技术上的识别率</div>
+    <div id="chart4" class="chart-container tall"></div>
+    <p class="note">图4：传统工具在 string_split 混淆上仅 61.9%，而 LLM 两阶段方案达 100%。CoT 在所有混淆技术上表现最差。</p>
+  </div>
+
+  <!-- 图5 LLM vs 传统工具 -->
+  <h2><span class="num">图5</span>LLM 方案 vs 传统工具 — 各指标对比</h2>
+  <div class="chart-card">
+    <div class="chart-title">两阶段 LLM 方案与传统规则引擎工具对比</div>
+    <div class="chart-desc">准确率、精确率、召回率、F1、混淆识别率五个维度的对比</div>
+    <div id="chart5" class="chart-container"></div>
+    <p class="note">图5：LLM 方案在所有指标上均优于传统工具，F1 提升 16.0%，混淆识别率提升 7.0%。</p>
+  </div>
+
+  <!-- 图6 延迟与Token成本 -->
+  <h2><span class="num">图6</span>各策略平均延迟与 Token 成本</h2>
+  <div class="chart-card">
+    <div class="chart-title">策略效率对比：延迟（柱）与 Token 成本（折线）</div>
+    <div class="chart-desc">双 Y 轴：左轴为平均延迟（ms），右轴为总 Token 消耗</div>
+    <div id="chart6" class="chart-container"></div>
+    <p class="note">图6：Few-shot 延迟最低（3.9s/条），CoT 延迟最高（14.8s/条）。传统工具无 API 调用，延迟约 0ms。</p>
+  </div>
+
+  <!-- 图7 误报漏报分布 -->
+  <h2><span class="num">图7</span>误报与漏报样本类型分布</h2>
+  <div class="chart-card">
+    <div class="chart-title">传统工具的误报（FP）与漏报（FN）样本类型分布</div>
+    <div class="chart-desc">传统工具 50 条 FP 和 39 条 FN 按样本类别的分布</div>
+    <div id="chart7" class="chart-container"></div>
+    <p class="note">图7：传统工具的误报主要集中在良性样本被误判为恶意（50 条），漏报集中在 webshell 和混淆样本（39 条）。LLM 方案 0 误报。</p>
+  </div>
+
+</div>
+
+<script>
+// ================================================================
+// 图2: 三组提示词×4指标 分组柱状图
+// ================================================================
+var chart2 = echarts.init(document.getElementById('chart2'));
+chart2.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  legend: { data: ['准确率', '精确率', '召回率', 'F1'], top: 5 },
+  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+  xAxis: { type: 'category', data: ['Zero-shot', 'Few-shot', 'CoT'] },
+  yAxis: { type: 'value', min: 60, max: 105, axisLabel: { formatter: '{value}%' } },
+  series: [
+    { name: '准确率', type: 'bar', data: [97.3, 98.5, 86.2], itemStyle: { color: '#1d4ed8' }, label: { show: true, position: 'top', formatter: '{c}%' } },
+    { name: '精确率', type: 'bar', data: [100.0, 100.0, 100.0], itemStyle: { color: '#059669' }, label: { show: true, position: 'top', formatter: '{c}%' } },
+    { name: '召回率', type: 'bar', data: [94.3, 96.8, 71.3], itemStyle: { color: '#f59e0b' }, label: { show: true, position: 'top', formatter: '{c}%' } },
+    { name: 'F1', type: 'bar', data: [97.1, 98.4, 83.2], itemStyle: { color: '#dc2626' }, label: { show: true, position: 'top', formatter: '{c}%' } },
+  ]
+});
+
+// ================================================================
+// 图3: DeepSeek vs 通义千问 F1对比
+// ================================================================
+var chart3 = echarts.init(document.getElementById('chart3'));
+chart3.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  legend: { data: ['DeepSeek', '通义千问'], top: 5 },
+  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+  xAxis: { type: 'category', data: ['准确率', '精确率', '召回率', 'F1', '混淆识别率'] },
+  yAxis: { type: 'value', min: 90, max: 105, axisLabel: { formatter: '{value}%' } },
+  series: [
+    { name: 'DeepSeek', type: 'bar', data: [98.5, 100.0, 96.8, 98.4, 99.0], itemStyle: { color: '#1d4ed8' }, label: { show: true, position: 'top', formatter: '{c}%' } },
+    { name: '通义千问', type: 'bar', data: [98.5, 100.0, 96.8, 98.4, 99.0], itemStyle: { color: '#059669' }, label: { show: true, position: 'top', formatter: '{c}%' } },
+  ]
+});
+
+// ================================================================
+// 图4: 混淆类型×识别率 热力图
+// ================================================================
+var chart4 = echarts.init(document.getElementById('chart4'));
+var obfTypes = ['base64', 'string_split', 'xor', 'comment_bypass'];
+var expLabels = ['两阶段-DS', '两阶段-Qwen', 'Few-shot', 'Zero-shot', 'CoT', '传统工具'];
+var heatData = [
+  [0,0,96.6],[0,1,100.0],[0,2,100.0],[0,3,100.0],
+  [1,0,96.6],[1,1,100.0],[1,2,100.0],[1,3,100.0],
+  [2,0,96.6],[2,1,100.0],[2,2,100.0],[2,3,100.0],
+  [3,0,93.1],[3,1,100.0],[3,2,93.1],[3,3,95.2],
+  [4,0,34.5],[4,1,66.7],[4,2,41.4],[4,3,61.9],
+  [5,0,100.0],[5,1,61.9],[5,2,100.0],[5,3,100.0],
+];
+chart4.setOption({
+  tooltip: { position: 'top', formatter: function(p) { return expLabels[p.value[0]] + ' / ' + obfTypes[p.value[1]] + '<br/>识别率: ' + p.value[2] + '%'; } },
+  grid: { left: '15%', right: '10%', bottom: '10%', top: '5%' },
+  xAxis: { type: 'category', data: obfTypes, name: '混淆技术', splitArea: { show: true } },
+  yAxis: { type: 'category', data: expLabels, name: '实验', splitArea: { show: true } },
+  visualMap: {
+    min: 30, max: 100, calculable: true, orient: 'horizontal', left: 'center', bottom: '2%',
+    inRange: { color: ['#dc2626', '#f59e0b', '#fbbf24', '#a3e635', '#059669'] },
+    text: ['100%', '30%'], textStyle: { fontSize: 11 }
+  },
+  series: [{
+    type: 'heatmap', data: heatData,
+    label: { show: true, formatter: function(p) { return p.value[2] + '%'; }, fontSize: 11 },
+    emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.5)' } }
+  }]
+});
+
+// ================================================================
+// 图5: LLM vs 传统工具 各指标对比
+// ================================================================
+var chart5 = echarts.init(document.getElementById('chart5'));
+chart5.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  legend: { data: ['LLM 两阶段方案', '传统工具(规则引擎)'], top: 5 },
+  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+  xAxis: { type: 'category', data: ['准确率', '精确率', '召回率', 'F1', '混淆识别率'] },
+  yAxis: { type: 'value', min: 75, max: 105, axisLabel: { formatter: '{value}%' } },
+  series: [
+    { name: 'LLM 两阶段方案', type: 'bar', data: [98.5, 100.0, 96.8, 98.4, 99.0], itemStyle: { color: '#1d4ed8' }, label: { show: true, position: 'top', formatter: '{c}%' } },
+    { name: '传统工具(规则引擎)', type: 'bar', data: [82.7, 80.6, 84.2, 82.4, 92.0], itemStyle: { color: '#dc2626' }, label: { show: true, position: 'top', formatter: '{c}%' } },
+  ]
+});
+
+// ================================================================
+// 图6: 延迟与Token成本 双轴图
+// ================================================================
+var chart6 = echarts.init(document.getElementById('chart6'));
+chart6.setOption({
+  tooltip: { trigger: 'axis' },
+  legend: { data: ['平均延迟(ms)', '总Token消耗'], top: 5 },
+  grid: { left: '3%', right: '5%', bottom: '3%', containLabel: true },
+  xAxis: { type: 'category', data: ['Zero-shot', 'Few-shot', 'CoT', '两阶段-DS', '两阶段-Qwen', '传统工具'], axisLabel: { rotate: 15 } },
+  yAxis: [
+    { type: 'value', name: '延迟(ms)', position: 'left', axisLabel: { formatter: '{value}' } },
+    { type: 'value', name: 'Token', position: 'right', axisLabel: { formatter: function(v) { return (v/1000000).toFixed(1) + 'M'; } } }
+  ],
+  series: [
+    { name: '平均延迟(ms)', type: 'bar', data: [4663, 3898, 14801, 4338, 27155, 0], itemStyle: { color: '#1d4ed8' },
+      label: { show: true, position: 'top', formatter: function(p) { return p.value > 0 ? p.value + 'ms' : '0'; } } },
+    { name: '总Token消耗', type: 'line', yAxisIndex: 1, data: [2500293, 2825854, 3162373, 2831297, 3547041, 0],
+      itemStyle: { color: '#dc2626' }, lineStyle: { width: 2 }, symbol: 'circle', symbolSize: 8,
+      label: { show: true, formatter: function(p) { return (p.value/1000000).toFixed(1) + 'M'; } } }
+  ]
+});
+
+// ================================================================
+// 图7: 误报与漏报样本类型分布 饼图
+// ================================================================
+var chart7 = echarts.init(document.getElementById('chart7'));
+chart7.setOption({
+  tooltip: { trigger: 'item', formatter: '{a} <br/>{b}: {c} ({d}%)' },
+  legend: { orient: 'vertical', left: 'left', top: 'middle', textStyle: { fontSize: 11 } },
+  title: [
+    { text: '传统工具 误报(FP)分布\n50条', left: '25%', textAlign: 'center', top: '5%', textStyle: { fontSize: 13 } },
+    { text: '传统工具 漏报(FN)分布\n39条', left: '75%', textAlign: 'center', top: '5%', textStyle: { fontSize: 13 } },
+  ],
+  series: [
+    {
+      name: 'FP分布', type: 'pie', radius: ['25%', '45%'], center: ['25%', '55%'],
+      data: [
+        { value: 30, name: 'WordPress(PHP)' },
+        { value: 12, name: 'ThinkPHP(PHP)' },
+        { value: 4, name: 'Flask(Python)' },
+        { value: 4, name: 'Laravel(PHP)' },
+      ],
+      itemStyle: { color: function(p) { return ['#dc2626','#f87171','#fca5a5','#fecaca'][p.dataIndex]; } },
+      label: { formatter: '{b}\n{c}条', fontSize: 10 }
+    },
+    {
+      name: 'FN分布', type: 'pie', radius: ['25%', '45%'], center: ['75%', '55%'],
+      data: [
+        { value: 26, name: 'webshell(原始恶意)' },
+        { value: 8, name: 'obfuscated(string_split)' },
+        { value: 5, name: 'sqli(SQL注入)' },
+      ],
+      itemStyle: { color: function(p) { return ['#f59e0b','#fbbf24','#fde68a'][p.dataIndex]; } },
+      label: { formatter: '{b}\n{c}条', fontSize: 10 }
+    }
+  ]
+});
+
+// 响应式
+window.addEventListener('resize', function() {
+  chart2.resize(); chart3.resize(); chart4.resize();
+  chart5.resize(); chart6.resize(); chart7.resize();
+});
+</script>
+</body>
+</html>

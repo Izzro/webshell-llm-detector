@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}在线检测 · LLM 恶意代码检测平台{% endblock %}
+
+{% block content %}
+<h1 class="page-title">在线检测</h1>
+<p class="page-subtitle">粘贴或上传代码，同时调用 LLM 和传统扫描器进行双引擎检测</p>
+
+<div class="detect-layout">
+  <!-- 左侧：输入区 -->
+  <div>
+    <div class="card">
+      <div class="card-title">代码输入</div>
+
+      <div class="example-bar">
+        <button class="btn btn-secondary btn-sm" onclick="loadExample('webshell')">一句话木马</button>
+        <button class="btn btn-secondary btn-sm" onclick="loadExample('base64')">Base64 混淆</button>
+        <button class="btn btn-secondary btn-sm" onclick="loadExample('sqli')">SQL 注入</button>
+        <button class="btn btn-secondary btn-sm" onclick="loadExample('benign')">正常 PHP</button>
+        <button class="btn btn-secondary btn-sm" onclick="clearCode()">清空</button>
+      </div>
+
+      <div class="form-group">
+        <textarea id="codeInput" class="form-control" placeholder="在此粘贴代码..."></textarea>
+      </div>
+
+      <div class="form-group" style="display:flex; gap:0.5rem; align-items:flex-end;">
+        <div style="flex:1;">
+          <label>模型</label>
+          <select id="provider" class="form-control">
+            <option value="deepseek">DeepSeek</option>
+            <option value="qwen">通义千问</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label>策略</label>
+          <select id="strategy" class="form-control">
+            <option value="few_shot" selected>Few-shot (推荐)</option>
+            <option value="zero_shot">Zero-shot</option>
+            <option value="cot">CoT 思维链</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label>语言</label>
+          <select id="language" class="form-control">
+            <option value="auto" selected>自动检测</option>
+            <option value="php">PHP</option>
+            <option value="python">Python</option>
+            <option value="sql">SQL</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="display:flex; gap:0.5rem;">
+        <button id="detectBtn" class="btn btn-primary" style="flex:1;" onclick="runDetect()">
+          🔍 开始检测
+        </button>
+        <label class="btn btn-secondary">
+          📁 上传文件
+          <input type="file" id="fileInput" style="display:none;" accept=".php,.py,.txt,.sql,.asp,.aspx,.jsp" onchange="handleFile(event)">
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右侧：结果区 -->
+  <div>
+    <div id="resultArea">
+      <div class="card" style="text-align:center; color:var(--muted); padding:3rem;">
+        <p style="font-size:0.9rem;">检测结果将在此显示</p>
+        <p style="font-size:0.8rem; margin-top:0.5rem;">点击"开始检测"按钮</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/detect.js') }}"></script>
+{% endblock %}

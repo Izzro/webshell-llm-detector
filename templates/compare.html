@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}实验对比 · LLM 恶意代码检测平台{% endblock %}
+
+{% block content %}
+<h1 class="page-title">实验对比</h1>
+<p class="page-subtitle">6 组实验结果横向对比 — 准确率 / F1 / 混淆识别率 / 延迟</p>
+
+<!-- 对比表格 -->
+<div class="card">
+  <div class="card-title">实验指标对比表</div>
+  <div style="overflow-x:auto;">
+    <table id="compareTable">
+      <thead>
+        <tr>
+          <th>实验</th>
+          <th>准确率</th>
+          <th>精确率</th>
+          <th>召回率</th>
+          <th>F1</th>
+          <th>混淆识别率</th>
+          <th>类型一致率</th>
+          <th>FP</th>
+          <th>FN</th>
+          <th>平均延迟(ms)</th>
+        </tr>
+      </thead>
+      <tbody id="compareTableBody">
+        <tr><td colspan="10" class="loading"><div class="spinner"></div>加载中...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 准确率/F1 对比图 -->
+<div class="chart-box">
+  <div class="chart-title">准确率与 F1 对比</div>
+  <div class="chart-desc">6 组实验在准确率和 F1 上的横向对比</div>
+  <div id="chartAccF1" class="chart-container"></div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+  <!-- 混淆识别率雷达图 -->
+  <div class="chart-box">
+    <div class="chart-title">混淆识别率雷达图</div>
+    <div class="chart-desc">各实验在 4 种混淆技术上的识别率</div>
+    <div id="chartRadar" class="chart-container"></div>
+  </div>
+
+  <!-- 延迟对比 -->
+  <div class="chart-box">
+    <div class="chart-title">平均延迟对比</div>
+    <div class="chart-desc">各策略的 API 调用延迟 (ms)</div>
+    <div id="chartLatency" class="chart-container"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/compare.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}LLM 恶意代码检测平台{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="nav-logo">🛡</span>
+      <span class="nav-title">LLM 恶意代码检测平台</span>
+    </div>
+    <div class="nav-links">
+      <a href="/" class="{% if request.path == '/' %}active{% endif %}">在线检测</a>
+      <a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}">数据看板</a>
+      <a href="/compare" class="{% if request.path == '/compare' %}active{% endif %}">实验对比</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <p>基于大语言模型的脚本类恶意代码识别研究 · 陈锦荣 · 广州软件学院网络空间安全学院</p>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

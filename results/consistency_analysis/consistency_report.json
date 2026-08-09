@@ -1,0 +1,1817 @@
+{
+  "export_time": "2026-08-08T20:29:35.995047",
+  "description": "LLM 检测结果一致性分析",
+  "analysis_dimensions": {
+    "within_strategy": {
+      "description": "同策略同模型多次运行一致性",
+      "run_a": "两阶段-DeepSeek run2 (515 samples, 0 cache hits)",
+      "run_b": "Few-shot-DeepSeek (515 samples, 无缓存)",
+      "run_c": "两阶段-DeepSeek run1 (30 samples, 0 cache hits)",
+      "pairwise_consistency_ab": {
+        "samples": 515,
+        "consistent": 513,
+        "rate": 0.9961
+      },
+      "triple_consistency_abc": {
+        "samples": 30,
+        "consistent": 30,
+        "rate": 1.0
+      }
+    },
+    "cross_strategy": {
+      "description": "Few-shot vs CoT 跨策略一致性",
+      "samples": 515,
+      "consistent": 451,
+      "rate": 0.8757,
+      "note": "CoT 策略因输出格式不稳定导致大量 unknown, 一致性较低属预期"
+    },
+    "cross_model": {
+      "description": "DeepSeek vs 通义千问 跨模型一致性（使用通义千问第二次完整运行）",
+      "qwen_run": "E_two_stage_qwen_20260808_182605 (515 samples, 2 unknown)",
+      "samples": 511,
+      "consistent": 507,
+      "rate": 0.9922,
+      "inconsistent_samples": [
+        {
+          "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_3802_base64.php",
+          "filename": "tennc_webshell_3802_base64.php",
+          "deepseek_label": "benign",
+          "qwen_label": "malicious",
+          "deepseek_confidence": 0.88,
+          "qwen_confidence": 0.95,
+          "true_label": "malicious",
+          "category": "obfuscated"
+        },
+        {
+          "file_path": "data\\samples\\webshell\\tennc_webshell_spexec.aspx",
+          "filename": "tennc_webshell_spexec.aspx",
+          "deepseek_label": "unknown",
+          "qwen_label": "malicious",
+          "deepseek_confidence": 0.0,
+          "qwen_confidence": 0.92,
+          "true_label": "malicious",
+          "category": "webshell"
+        },
+        {
+          "file_path": "data\\samples\\webshell\\tennc_webshell_vbencode-bypass.asp",
+          "filename": "tennc_webshell_vbencode-bypass.asp",
+          "deepseek_label": "malicious",
+          "qwen_label": "unknown",
+          "deepseek_confidence": 0.75,
+          "qwen_confidence": 0.0,
+          "true_label": "malicious",
+          "category": "webshell"
+        },
+        {
+          "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_GFS_web-shell_base64.php",
+          "filename": "johnTroony_php_webshells_GFS_web-shell_base64.php",
+          "deepseek_label": "malicious",
+          "qwen_label": "unknown",
+          "deepseek_confidence": 0.99,
+          "qwen_confidence": 0.0,
+          "true_label": "malicious",
+          "category": "obfuscated"
+        }
+      ]
+    }
+  },
+  "confidence_stability": {
+    "avg_diff": 0.0151,
+    "max_diff": 0.75,
+    "distribution": {
+      "exact_match": 221,
+      "within_0.01": 0,
+      "within_0.05": 281,
+      "within_0.1": 8,
+      "above_0.1": 5
+    }
+  },
+  "acceptance": {
+    "target": 0.9,
+    "within_strategy_passed": true,
+    "within_strategy_rate": 0.9961,
+    "triple_consistency_passed": true,
+    "triple_consistency_rate": 1.0,
+    "note": "temperature=0.1 确保了 LLM 输出的高度稳定性",
+    "cross_model_passed": true,
+    "cross_model_rate": 0.9922
+  },
+  "inconsistent_samples": {
+    "within_strategy_ab": [
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_vbencode-bypass.asp",
+        "filename": "tennc_webshell_vbencode-bypass.asp",
+        "run_a_label": "malicious",
+        "run_b_label": "benign",
+        "run_a_confidence": 0.75,
+        "run_b_confidence": 0.6,
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_spexec.aspx",
+        "filename": "tennc_webshell_spexec.aspx",
+        "run_a_label": "unknown",
+        "run_b_label": "malicious",
+        "run_a_confidence": 0.0,
+        "run_b_confidence": 0.75,
+        "true_label": "malicious",
+        "category": "webshell"
+      }
+    ],
+    "cross_strategy": [
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_Ayyildiz_Tim_string_split.php",
+        "filename": "johnTroony_php_webshells_Ayyildiz_Tim_string_split.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_shell-2021-03-18_comment_bypass.php",
+        "filename": "tennc_webshell_shell-2021-03-18_comment_bypass.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_shell2020-12-06_comment_bypass.php",
+        "filename": "tennc_webshell_shell2020-12-06_comment_bypass.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_fatal_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_fatal_comment_bypass.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_shell-2021-04-23.php",
+        "filename": "tennc_webshell_shell-2021-04-23.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_vbencode-bypass.asp",
+        "filename": "tennc_webshell_vbencode-bypass.asp",
+        "few_shot_label": "benign",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\johnTroony_php_webshells_cpanel.php",
+        "filename": "johnTroony_php_webshells_cpanel.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_h4ntu_shell_base64.php",
+        "filename": "johnTroony_php_webshells_h4ntu_shell_base64.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_spexec.aspx",
+        "filename": "tennc_webshell_spexec.aspx",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_bypass01_xor.php",
+        "filename": "tennc_webshell_bypass01_xor.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_shell-2021-04-23_base64.php",
+        "filename": "tennc_webshell_shell-2021-04-23_base64.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_Antichat_Shell_xor.php",
+        "filename": "johnTroony_php_webshells_Antichat_Shell_xor.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_radhat.asp",
+        "filename": "tennc_webshell_radhat.asp",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_GRP_WebShell_base64.php",
+        "filename": "johnTroony_php_webshells_GRP_WebShell_base64.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_proxy.py",
+        "filename": "tennc_webshell_proxy.py",
+        "few_shot_label": "malicious",
+        "cot_label": "benign",
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_create-activex-object.asp",
+        "filename": "tennc_webshell_create-activex-object.asp",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_h4ntu_shell_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_h4ntu_shell_comment_bypass.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_shell2020-12-06_xor.php",
+        "filename": "tennc_webshell_shell2020-12-06_xor.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_php_create_function_xor.php",
+        "filename": "tennc_webshell_php_create_function_xor.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_shell-2021-03-18_base64.php",
+        "filename": "tennc_webshell_shell-2021-03-18_base64.php",
+        "few_shot_label": "malicious",
+        "cot_label": "unknown",
+        "true_label": "malicious",
+        "category": "obfuscated"
+      }
+    ],
+    "cross_model": [
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_Ayyildiz_Tim_string_split.php",
+        "filename": "johnTroony_php_webshells_Ayyildiz_Tim_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_shell-2021-03-18_comment_bypass.php",
+        "filename": "tennc_webshell_shell-2021-03-18_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_php1_base64.php",
+        "filename": "tennc_webshell_php1_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_Ayyildiz_Tim_base64.php",
+        "filename": "johnTroony_php_webshells_Ayyildiz_Tim_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_shell2020-12-06_comment_bypass.php",
+        "filename": "tennc_webshell_shell2020-12-06_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_fatal_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_fatal_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_060.txt",
+        "filename": "builtin_sqli_payload_060.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.9,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_vbencode-bypass.asp",
+        "filename": "tennc_webshell_vbencode-bypass.asp",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.75,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_php_custom_spy_for_mysql_xor.php",
+        "filename": "tennc_webshell_php_custom_spy_for_mysql_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\tennc_webshell_php_custom_spy_for_mysql_string_split.php",
+        "filename": "tennc_webshell_php_custom_spy_for_mysql_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_h4ntu_shell_base64.php",
+        "filename": "johnTroony_php_webshells_h4ntu_shell_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_spexec.aspx",
+        "filename": "tennc_webshell_spexec.aspx",
+        "deepseek_label": "unknown",
+        "qwen_label": "malicious",
+        "deepseek_confidence": 0.0,
+        "qwen_confidence": 0.92,
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_shell-2021-03-18_xor.php",
+        "filename": "tennc_webshell_shell-2021-03-18_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_bypass01_xor.php",
+        "filename": "tennc_webshell_bypass01_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_GRP_WebShell_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_GRP_WebShell_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_shell-2021-04-23_base64.php",
+        "filename": "tennc_webshell_shell-2021-04-23_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_046.txt",
+        "filename": "builtin_sqli_payload_046.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_Antichat_Shell_xor.php",
+        "filename": "johnTroony_php_webshells_Antichat_Shell_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_back_comment_bypass.py",
+        "filename": "tennc_webshell_back_comment_bypass.py",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_075.txt",
+        "filename": "builtin_sqli_payload_075.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_php3_xor.php",
+        "filename": "tennc_webshell_php3_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_Antichat_Shell_string_split.php",
+        "filename": "johnTroony_php_webshells_Antichat_Shell_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_python2_custom_script_base64.py",
+        "filename": "tennc_webshell_python2_custom_script_base64.py",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_081.txt",
+        "filename": "builtin_sqli_payload_081.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_077.txt",
+        "filename": "builtin_sqli_payload_077.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_cpanel_xor.php",
+        "filename": "johnTroony_php_webshells_cpanel_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_CrystalShell_xor.php",
+        "filename": "johnTroony_php_webshells_CrystalShell_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_GRP_WebShell_base64.php",
+        "filename": "johnTroony_php_webshells_GRP_WebShell_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_proxy.py",
+        "filename": "tennc_webshell_proxy.py",
+        "deepseek_label": "malicious",
+        "qwen_label": "benign",
+        "deepseek_confidence": 0.9,
+        "qwen_confidence": 0.9,
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\tennc_webshell_3802.php",
+        "filename": "tennc_webshell_3802.php",
+        "deepseek_label": "benign",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_h4ntu_shell_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_h4ntu_shell_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_051.txt",
+        "filename": "builtin_sqli_payload_051.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_040.txt",
+        "filename": "builtin_sqli_payload_040.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.96,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_404_xor.php",
+        "filename": "tennc_webshell_404_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_070.txt",
+        "filename": "builtin_sqli_payload_070.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_Antichat_Shell_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_Antichat_Shell_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_042.txt",
+        "filename": "builtin_sqli_payload_042.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_shell2020-12-06_xor.php",
+        "filename": "tennc_webshell_shell2020-12-06_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_configkillerionkros_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_configkillerionkros_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_GFS_web-shell_xor.php",
+        "filename": "johnTroony_php_webshells_GFS_web-shell_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_php_create_function_xor.php",
+        "filename": "tennc_webshell_php_create_function_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_062.txt",
+        "filename": "builtin_sqli_payload_062.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_shell-2021-03-18_base64.php",
+        "filename": "tennc_webshell_shell-2021-03-18_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_back_base64.py",
+        "filename": "tennc_webshell_back_base64.py",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_033.txt",
+        "filename": "builtin_sqli_payload_033.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_php_niu_3_base64.php",
+        "filename": "tennc_webshell_php_niu_3_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.96,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_035.txt",
+        "filename": "builtin_sqli_payload_035.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_cpanel_base64.php",
+        "filename": "johnTroony_php_webshells_cpanel_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_python2_custom_script_comment_bypass.py",
+        "filename": "tennc_webshell_python2_custom_script_comment_bypass.py",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_php_custom_script_for_mysql_fix_xor.php",
+        "filename": "tennc_webshell_php_custom_script_for_mysql_fix_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_bypass01_comment_bypass.php",
+        "filename": "tennc_webshell_bypass01_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_055.txt",
+        "filename": "builtin_sqli_payload_055.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_074.txt",
+        "filename": "builtin_sqli_payload_074.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_052.txt",
+        "filename": "builtin_sqli_payload_052.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.96,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_063.txt",
+        "filename": "builtin_sqli_payload_063.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_Ayyildiz_Tim_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_Ayyildiz_Tim_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_041.txt",
+        "filename": "builtin_sqli_payload_041.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_064.txt",
+        "filename": "builtin_sqli_payload_064.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\tennc_webshell_shell2020-12-06_string_split.php",
+        "filename": "tennc_webshell_shell2020-12-06_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_h4ntu_shell_xor.php",
+        "filename": "johnTroony_php_webshells_h4ntu_shell_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_hiddens_shell_xor.php",
+        "filename": "johnTroony_php_webshells_hiddens_shell_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_045.txt",
+        "filename": "builtin_sqli_payload_045.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.96,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_bypass01_base64.php",
+        "filename": "tennc_webshell_bypass01_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_cpanel_string_split.php",
+        "filename": "johnTroony_php_webshells_cpanel_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_071.txt",
+        "filename": "builtin_sqli_payload_071.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_069.txt",
+        "filename": "builtin_sqli_payload_069.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\tennc_webshell_back_string_split.py",
+        "filename": "tennc_webshell_back_string_split.py",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_3802_xor.php",
+        "filename": "tennc_webshell_3802_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_php_create_function_comment_bypass.php",
+        "filename": "tennc_webshell_php_create_function_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_hiddens_shell_base64.php",
+        "filename": "johnTroony_php_webshells_hiddens_shell_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_php_custom_spy_for_mysql_comment_bypass.php",
+        "filename": "tennc_webshell_php_custom_spy_for_mysql_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_shell-2021-04-23_xor.php",
+        "filename": "tennc_webshell_shell-2021-04-23_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_php_niu_3_xor.php",
+        "filename": "tennc_webshell_php_niu_3_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.9,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_036.txt",
+        "filename": "builtin_sqli_payload_036.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_044.txt",
+        "filename": "builtin_sqli_payload_044.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_back_comment_bypass.php",
+        "filename": "tennc_webshell_back_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_php1_xor.php",
+        "filename": "tennc_webshell_php1_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_back_base64.php",
+        "filename": "tennc_webshell_back_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_GRP_WebShell_xor.php",
+        "filename": "johnTroony_php_webshells_GRP_WebShell_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_go-shell_base64.php",
+        "filename": "johnTroony_php_webshells_go-shell_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_066.txt",
+        "filename": "builtin_sqli_payload_066.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_034.txt",
+        "filename": "builtin_sqli_payload_034.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_065.txt",
+        "filename": "builtin_sqli_payload_065.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_php_custom_script_for_mysql_fix_comment_bypass.php",
+        "filename": "tennc_webshell_php_custom_script_for_mysql_fix_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_067.txt",
+        "filename": "builtin_sqli_payload_067.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_073.txt",
+        "filename": "builtin_sqli_payload_073.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.9,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_037.txt",
+        "filename": "builtin_sqli_payload_037.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\tennc_webshell_php_custom_script_for_mysql_fix_string_split.php",
+        "filename": "tennc_webshell_php_custom_script_for_mysql_fix_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_078.txt",
+        "filename": "builtin_sqli_payload_078.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.9,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_061.txt",
+        "filename": "builtin_sqli_payload_061.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_php2_xor.php",
+        "filename": "tennc_webshell_php2_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\tennc_webshell_shell-2021-04-23_comment_bypass.php",
+        "filename": "tennc_webshell_shell-2021-04-23_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_076.txt",
+        "filename": "builtin_sqli_payload_076.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.96,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\tennc_webshell_python2_custom_script_string_split.py",
+        "filename": "tennc_webshell_python2_custom_script_string_split.py",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_080.txt",
+        "filename": "builtin_sqli_payload_080.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_047.txt",
+        "filename": "builtin_sqli_payload_047.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_c99_madnet_xor.php",
+        "filename": "johnTroony_php_webshells_c99_madnet_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_configkillerionkros_xor.php",
+        "filename": "johnTroony_php_webshells_configkillerionkros_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_GFS_web-shell_base64.php",
+        "filename": "johnTroony_php_webshells_GFS_web-shell_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_CrystalShell_base64.php",
+        "filename": "johnTroony_php_webshells_CrystalShell_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_proxy_base64.py",
+        "filename": "tennc_webshell_proxy_base64.py",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.9,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_back_xor.py",
+        "filename": "tennc_webshell_back_xor.py",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_c99_madnet_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_c99_madnet_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_proxy_xor.py",
+        "filename": "tennc_webshell_proxy_xor.py",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_h4ntu_shell_string_split.php",
+        "filename": "johnTroony_php_webshells_h4ntu_shell_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_082.txt",
+        "filename": "builtin_sqli_payload_082.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_043.txt",
+        "filename": "builtin_sqli_payload_043.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\tennc_webshell_back_string_split.php",
+        "filename": "tennc_webshell_back_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\webshell\\johnTroony_php_webshells_c99_madnet.php",
+        "filename": "johnTroony_php_webshells_c99_madnet.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "webshell"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_058.txt",
+        "filename": "builtin_sqli_payload_058.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_fatal_xor.php",
+        "filename": "johnTroony_php_webshells_fatal_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_054.txt",
+        "filename": "builtin_sqli_payload_054.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.9,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_050.txt",
+        "filename": "builtin_sqli_payload_050.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_cpanel_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_cpanel_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_404_base64.php",
+        "filename": "tennc_webshell_404_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_c99_madnet_string_split.php",
+        "filename": "johnTroony_php_webshells_c99_madnet_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_php_custom_script_for_mysql_fix_base64.php",
+        "filename": "tennc_webshell_php_custom_script_for_mysql_fix_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_php_create_function_base64.php",
+        "filename": "tennc_webshell_php_create_function_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_shell2020-12-06_base64.php",
+        "filename": "tennc_webshell_shell2020-12-06_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_hiddens_shell_string_split.php",
+        "filename": "johnTroony_php_webshells_hiddens_shell_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_php_custom_spy_for_mysql_base64.php",
+        "filename": "tennc_webshell_php_custom_spy_for_mysql_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_configkillerionkros_string_split.php",
+        "filename": "johnTroony_php_webshells_configkillerionkros_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_059.txt",
+        "filename": "builtin_sqli_payload_059.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.92,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_fatal_base64.php",
+        "filename": "johnTroony_php_webshells_fatal_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_configkillerionkros_base64.php",
+        "filename": "johnTroony_php_webshells_configkillerionkros_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_GRP_WebShell_string_split.php",
+        "filename": "johnTroony_php_webshells_GRP_WebShell_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_048.txt",
+        "filename": "builtin_sqli_payload_048.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.96,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_079.txt",
+        "filename": "builtin_sqli_payload_079.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_php2_base64.php",
+        "filename": "tennc_webshell_php2_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_057.txt",
+        "filename": "builtin_sqli_payload_057.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_php3_base64.php",
+        "filename": "tennc_webshell_php3_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_c99_madnet_base64.php",
+        "filename": "johnTroony_php_webshells_c99_madnet_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\tennc_webshell_3802_base64.php",
+        "filename": "tennc_webshell_3802_base64.php",
+        "deepseek_label": "benign",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.88,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_049.txt",
+        "filename": "builtin_sqli_payload_049.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.96,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_fatal_string_split.php",
+        "filename": "johnTroony_php_webshells_fatal_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_CrystalShell_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_CrystalShell_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 1.0,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_hiddens_shell_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_hiddens_shell_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_056.txt",
+        "filename": "builtin_sqli_payload_056.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_CrystalShell_string_split.php",
+        "filename": "johnTroony_php_webshells_CrystalShell_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_072.txt",
+        "filename": "builtin_sqli_payload_072.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.95,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\tennc_webshell_php_create_function_string_split.php",
+        "filename": "tennc_webshell_php_create_function_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\tennc_webshell_bypass01_string_split.php",
+        "filename": "tennc_webshell_bypass01_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_go-shell_xor.php",
+        "filename": "johnTroony_php_webshells_go-shell_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_053.txt",
+        "filename": "builtin_sqli_payload_053.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\sqli\\builtin_sqli_payload_068.txt",
+        "filename": "builtin_sqli_payload_068.txt",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "sqli"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_python2_custom_script_xor.py",
+        "filename": "tennc_webshell_python2_custom_script_xor.py",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\johnTroony_php_webshells_Ayyildiz_Tim_xor.php",
+        "filename": "johnTroony_php_webshells_Ayyildiz_Tim_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.98,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\tennc_webshell_shell-2021-04-23_string_split.php",
+        "filename": "tennc_webshell_shell-2021-04-23_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 1.0,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\tennc_webshell_shell-2021-03-18_string_split.php",
+        "filename": "tennc_webshell_shell-2021-03-18_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\xor\\tennc_webshell_back_xor.php",
+        "filename": "tennc_webshell_back_xor.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.96,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\string_split\\johnTroony_php_webshells_GFS_web-shell_string_split.php",
+        "filename": "johnTroony_php_webshells_GFS_web-shell_string_split.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 1.0,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\comment_bypass\\johnTroony_php_webshells_GFS_web-shell_comment_bypass.php",
+        "filename": "johnTroony_php_webshells_GFS_web-shell_comment_bypass.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      },
+      {
+        "file_path": "data\\samples\\obfuscated\\base64\\johnTroony_php_webshells_Antichat_Shell_base64.php",
+        "filename": "johnTroony_php_webshells_Antichat_Shell_base64.php",
+        "deepseek_label": "malicious",
+        "qwen_label": "unknown",
+        "deepseek_confidence": 0.99,
+        "qwen_confidence": 0.0,
+        "true_label": "malicious",
+        "category": "obfuscated"
+      }
+    ]
+  }
+}

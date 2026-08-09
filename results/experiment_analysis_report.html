@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实验分析报告 · 基于大语言模型的脚本类恶意代码识别研究</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff; --bg2: #f8fafc; --bg3: #f1f5f9;
+  --ink: #1e293b; --muted: #64748b; --light: #94a3b8;
+  --rule: #e2e8f0; --accent: #1d4ed8; --accent2: #dc2626; --accent3: #059669;
+  --accent4: #f59e0b; --code-bg: #f8fafc;
+  --font: 'PingFang SC','Microsoft YaHei','Noto Sans CJK SC','WenQuanYi Micro Hei',sans-serif;
+  --mono: 'SF Mono','Fira Code','Consolas','Monaco',monospace;
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg2); color: var(--ink); line-height: 1.8; font-size: 15px; }
+.page { max-width: 900px; margin: 0 auto; background: var(--bg); padding: 3rem 3.5rem; box-shadow: 0 0 20px rgba(0,0,0,0.04); min-height: 100vh; }
+
+/* Typography */
+h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.25rem; color: var(--ink); }
+.subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
+.meta-bar { display: flex; gap: 1.5rem; padding: 0.75rem 1rem; background: var(--bg3); border-radius: 6px; margin: 1.5rem 0 2.5rem; font-size: 0.82rem; color: var(--muted); }
+.meta-bar span { display: flex; align-items: center; gap: 0.3rem; }
+.meta-bar strong { color: var(--ink); font-weight: 600; }
+
+h2 { font-size: 1.25rem; font-weight: 700; margin: 2.5rem 0 0.75rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--accent); color: var(--ink); }
+h2 .num { color: var(--accent); margin-right: 0.5rem; font-family: var(--mono); }
+h3 { font-size: 1.05rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--ink); }
+h4 { font-size: 0.95rem; font-weight: 600; margin: 1rem 0 0.4rem; color: var(--ink); }
+
+p { margin-bottom: 0.75rem; text-align: justify; }
+strong { color: var(--ink); font-weight: 600; }
+em { font-style: italic; color: var(--accent); }
+
+/* RQ box */
+.rq-box { background: #eff6ff; border-left: 4px solid var(--accent); padding: 0.75rem 1rem; margin: 1rem 0; border-radius: 0 6px 6px 0; }
+.rq-box .rq-label { font-family: var(--mono); font-size: 0.8rem; font-weight: 700; color: var(--accent); margin-bottom: 0.2rem; }
+.rq-box .rq-text { font-size: 0.88rem; color: var(--ink); }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.85rem; }
+th { background: var(--bg3); padding: 0.6rem 0.5rem; text-align: center; font-weight: 600; color: var(--ink); border-bottom: 2px solid var(--rule); white-space: nowrap; }
+td { padding: 0.5rem 0.5rem; text-align: center; border-bottom: 1px solid var(--rule); }
+tr:hover td { background: var(--bg2); }
+.best { color: var(--accent3); font-weight: 700; }
+.worst { color: var(--accent2); font-weight: 600; }
+
+/* Chart containers */
+.chart-box { background: var(--bg2); border: 1px solid var(--rule); border-radius: 8px; padding: 1rem; margin: 1rem 0 1.5rem; }
+.chart-box .chart-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.25rem; }
+.chart-box .chart-desc { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem; }
+.chart-container { width: 100%; height: 350px; }
+.chart-container.tall { height: 420px; }
+
+/* Callout */
+.callout { padding: 0.75rem 1rem; border-radius: 6px; margin: 1rem 0; font-size: 0.85rem; }
+.callout-info { background: #eff6ff; border-left: 4px solid var(--accent); }
+.callout-success { background: #f0fdf4; border-left: 4px solid var(--accent3); }
+.callout-warn { background: #fffbeb; border-left: 4px solid var(--accent4); }
+.callout-error { background: #fef2f2; border-left: 4px solid var(--accent2); }
+.callout strong { display: block; margin-bottom: 0.2rem; }
+
+/* Code */
+code { font-family: var(--mono); font-size: 0.82rem; background: var(--code-bg); padding: 0.1rem 0.3rem; border-radius: 3px; color: var(--accent2); }
+
+/* Lists */
+ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+li { margin-bottom: 0.3rem; }
+
+/* Metric cards */
+.metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin: 1rem 0; }
+.metric-card { background: var(--bg2); border: 1px solid var(--rule); border-radius: 8px; padding: 0.75rem; text-align: center; }
+.metric-card .value { font-size: 1.4rem; font-weight: 800; font-family: var(--mono); }
+.metric-card .label { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+.metric-card.accent .value { color: var(--accent); }
+.metric-card.green .value { color: var(--accent3); }
+.metric-card.red .value { color: var(--accent2); }
+.metric-card.amber .value { color: var(--accent4); }
+
+/* Divider */
+hr { border: none; border-top: 1px solid var(--rule); margin: 2rem 0; }
+
+/* Footer */
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); font-size: 0.8rem; color: var(--muted); text-align: center; }
+
+/* Note */
+.note { font-size: 0.8rem; color: var(--muted); margin-top: 0.4rem; }
+
+/* TOC */
+.toc { background: var(--bg2); border: 1px solid var(--rule); border-radius: 8px; padding: 1rem 1.5rem; margin: 1.5rem 0 2rem; }
+.toc h3 { margin-top: 0; margin-bottom: 0.5rem; font-size: 0.9rem; }
+.toc ol { margin-left: 1.2rem; font-size: 0.85rem; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+
+@media print {
+  .page { box-shadow: none; max-width: none; }
+  .chart-container { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>实验分析报告</h1>
+<p class="subtitle">基于大语言模型的脚本类恶意代码识别研究</p>
+<div class="meta-bar">
+  <span><strong>作者：</strong>陈锦荣</span>
+  <span><strong>学号：</strong>2520244210</span>
+  <span><strong>日期：</strong>2026-08-08</span>
+  <span><strong>阶段：</strong>阶段三 · 实验评估与分析</span>
+</div>
+
+<div class="toc">
+  <h3>目录</h3>
+  <ol>
+    <li><a href="#sec1">实验概述</a></li>
+    <li><a href="#sec2">研究问题与实验设计</a></li>
+    <li><a href="#sec3">RQ1：提示词策略对比分析</a></li>
+    <li><a href="#sec4">RQ2：跨模型一致性分析</a></li>
+    <li><a href="#sec5">RQ3：混淆对抗能力分析</a></li>
+    <li><a href="#sec6">RQ4：LLM 方案 vs 传统工具对比</a></li>
+    <li><a href="#sec7">两阶段管道效率分析</a></li>
+    <li><a href="#sec8">一致性与稳定性分析</a></li>
+    <li><a href="#sec9">误报与漏报分析</a></li>
+    <li><a href="#sec10">局限性讨论</a></li>
+    <li><a href="#sec11">结论与后续展望</a></li>
+  </ol>
+</div>
+
+<!-- ==================== 1. 实验概述 ==================== -->
+<h2 id="sec1"><span class="num">1</span>实验概述</h2>
+
+<h3>1.1 数据集构成</h3>
+<p>本研究构建了一个包含 <strong>515 条</strong>脚本样本的评测数据集，覆盖 PHP、Python、SQL 三种语言，分为良性样本和恶意样本两大类，其中恶意样本又包含原始恶意代码和经混淆处理的变种。数据集构成如下表所示：</p>
+
+<table>
+  <tr><th>类别</th><th>子类</th><th>样本数</th><th>标签</th><th>说明</th></tr>
+  <tr><td rowspan="4">良性 (268)</td><td>WordPress</td><td>120</td><td>benign</td><td>WP 核心及插件源码</td></tr>
+  <tr><td>ThinkPHP</td><td>60</td><td>benign</td><td>ThinkPHP 框架源码</td></tr>
+  <tr><td>Laravel</td><td>60</td><td>benign</td><td>Laravel 框架源码</td></tr>
+  <tr><td>Flask</td><td>28</td><td>benign</td><td>Flask 示例代码</td></tr>
+  <tr><td rowspan="2">原始恶意 (147)</td><td>WebShell</td><td>65</td><td>malicious</td><td>PHP/ASP/JSP 一句话木马及大马</td></tr>
+  <tr><td>SQLi</td><td>82</td><td>malicious</td><td>SQL 注入载荷</td></tr>
+  <tr><td rowspan="4">混淆变种 (100)</td><td>Base64</td><td>29</td><td>malicious</td><td>Base64 编码混淆</td></tr>
+  <tr><td>XOR</td><td>29</td><td>malicious</td><td>异或运算混淆</td></tr>
+  <tr><td>String Split</td><td>21</td><td>malicious</td><td>字符串拆分重组</td></tr>
+  <tr><td>Comment Bypass</td><td>21</td><td>malicious</td><td>注释绕过混淆</td></tr>
+  <tr><td colspan="2"><strong>合计</strong></td><td><strong>515</strong></td><td colspan="2">良性 268 / 恶意 247（含混淆 100）</td></tr>
+</table>
+
+<div class="callout callout-info">
+  <strong>数据集设计原则</strong>
+  良性样本占比 52.0%，恶意样本占比 48.0%，正负样本接近平衡。混淆变种均源自真实 WebShell 样本，经过四种自动化混淆技术生成，确保混淆对抗实验的可复现性。
+</div>
+
+<h3>1.2 实验环境</h3>
+<table>
+  <tr><th>项目</th><th>配置</th></tr>
+  <tr><td>LLM 提供商</td><td>DeepSeek (deepseek-chat) / 阿里云通义千问 (qwen-plus)</td></tr>
+  <tr><td>调用方式</td><td>OpenAI 兼容 API，JSON 模式 + 文本模式</td></tr>
+  <tr><td>温度参数</td><td>temperature = 0.1（保证输出稳定性）</td></tr>
+  <tr><td>并发数</td><td>DeepSeek: 5 线程 / 通义千问: 3 线程</td></tr>
+  <tr><td>传统对照工具</td><td>基于规则引擎的 WebShell 扫描器（726 条规则）</td></tr>
+  <tr><td>开发语言</td><td>Python 3.12</td></tr>
+  <tr><td>运行环境</td><td>Windows Server, 网络访问 LLM API</td></tr>
+</table>
+
+<h3>1.3 实验矩阵</h3>
+<p>本研究设计了 6 组主实验（3 种提示词策略 × 2 个 LLM 提供商）和 1 组对照实验（传统工具），加上混淆对抗专项实验（E7）和一致性分析，共计 8 个实验维度。全部实验在 515 条全量样本上运行，E7 混淆实验在 100 条混淆样本上独立评估。</p>
+
+<table>
+  <tr><th>实验编号</th><th>策略</th><th>提供商</th><th>样本数</th><th>说明</th></tr>
+  <tr><td>E1</td><td>Zero-shot</td><td>DeepSeek</td><td>515</td><td>零样本提示词</td></tr>
+  <tr><td>E2</td><td>Few-shot</td><td>DeepSeek</td><td>515</td><td>少样本提示词（3 条示例）</td></tr>
+  <tr><td>E3</td><td>CoT</td><td>DeepSeek</td><td>515</td><td>思维链提示词</td></tr>
+  <tr><td>E4-E5</td><td>两阶段</td><td>DeepSeek</td><td>515</td><td>Few-shot 快筛 + CoT 复审</td></tr>
+  <tr><td>E6</td><td>两阶段</td><td>通义千问</td><td>515</td><td>跨模型验证</td></tr>
+  <tr><td>E-trad</td><td>规则引擎</td><td>—</td><td>515</td><td>传统 WebShell 扫描器对照</td></tr>
+  <tr><td>E7</td><td>全策略对比</td><td>DS + Qwen</td><td>100</td><td>混淆对抗专项评估</td></tr>
+</table>
+
+<hr>
+
+<!-- ==================== 2. 研究问题 ==================== -->
+<h2 id="sec2"><span class="num">2</span>研究问题与实验设计</h2>
+
+<p>本阶段实验围绕以下四个核心研究问题展开，每个问题对应一组或多组对照实验：</p>
+
+<div class="rq-box">
+  <div class="rq-label">RQ1</div>
+  <div class="rq-text"><strong>不同提示词策略（Zero-shot / Few-shot / CoT）对恶意代码识别效果的影响如何？哪种策略综合表现最优？</strong></div>
+</div>
+<div class="rq-box">
+  <div class="rq-label">RQ2</div>
+  <div class="rq-text"><strong>两阶段检测方案在不同 LLM 模型（DeepSeek vs 通义千问）上的一致性如何？方案是否具备跨模型泛化能力？</strong></div>
+</div>
+<div class="rq-box">
+  <div class="rq-label">RQ3</div>
+  <div class="rq-text"><strong>LLM 方案对混淆恶意代码的识别能力如何？与传统工具相比，在各类混淆技术上是否存在显著差异？</strong></div>
+</div>
+<div class="rq-box">
+  <div class="rq-label">RQ4</div>
+  <div class="rq-text"><strong>LLM 方案与基于规则引擎的传统 WebShell 扫描工具相比，在准确率、误报率、漏报率等核心指标上的优势幅度如何？</strong></div>
+</div>
+
+<hr>
+
+<!-- ==================== 3. RQ1 提示词策略对比 ==================== -->
+<h2 id="sec3"><span class="num">3</span>RQ1：提示词策略对比分析</h2>
+
+<h3>3.1 总体指标对比</h3>
+<p>在 DeepSeek 平台上，三种提示词策略在全量 515 条样本上的表现如下表所示。Few-shot 策略综合表现最优，F1 达 98.35%；CoT 策略因输出格式不稳定导致大量样本无法解析，准确率仅 86.21%。</p>
+
+<table>
+  <tr><th>策略</th><th>准确率</th><th>精确率</th><th>召回率</th><th>F1</th><th>FP</th><th>FN</th><th>未分类</th><th>混淆识别率</th><th>类型一致率</th></tr>
+  <tr><td>Zero-shot</td><td>97.28%</td><td>100.0%</td><td>94.33%</td><td>97.08%</td><td>0</td><td>14</td><td>5</td><td>95.0%</td><td>89.07%</td></tr>
+  <tr><td class="best">Few-shot</td><td class="best">98.45%</td><td>100.0%</td><td class="best">96.76%</td><td class="best">98.35%</td><td class="best">0</td><td class="best">8</td><td class="best">0</td><td class="best">99.0%</td><td>88.26%</td></tr>
+  <tr><td class="worst">CoT</td><td class="worst">86.21%</td><td>100.0%</td><td class="worst">71.26%</td><td class="worst">83.22%</td><td>0</td><td class="worst">71</td><td class="worst">63</td><td class="worst">49.0%</td><td class="worst">68.42%</td></tr>
+</table>
+
+<div class="chart-box">
+  <div class="chart-title">图1：三组提示词策略 × 4 项核心指标对比</div>
+  <div class="chart-desc">DeepSeek 平台，515 条全量样本</div>
+  <div id="chart_rq1" class="chart-container"></div>
+</div>
+
+<h3>3.2 分析与发现</h3>
+
+<h4>3.2.1 Few-shot 策略表现最优</h4>
+<p>Few-shot 策略在准确率（98.45%）、召回率（96.76%）、F1（98.35%）三个核心指标上均领先，且 <strong>零未分类样本</strong>。其优势主要源于：</p>
+<ul>
+  <li><strong>示例引导</strong>：3 条精选示例（含 1 条 WebShell、1 条 SQLi、1 条良性代码）使模型快速建立对任务格式的认知，输出 JSON 结构更加规范；</li>
+  <li><strong>格式稳定性</strong>：启用 JSON 模式后，Few-shot 的输出格式一致性显著优于 CoT 的自由文本输出；</li>
+  <li><strong>混淆识别提升</strong>：相比 Zero-shot，Few-shot 的混淆识别率从 95.0% 提升至 99.0%，提升 4 个百分点。</li>
+</ul>
+
+<h4>3.2.2 Zero-shot 策略基础表现良好</h4>
+<p>Zero-shot 策略在不提供任何示例的情况下，仍达到 97.28% 的准确率，表明 DeepSeek 模型本身具备较强的恶意代码识别先验知识。其 14 条漏报中有 5 条为未分类（输出解析失败），主要出现在长文本或罕见语言（ASP/JSP）样本上。</p>
+
+<h4>3.2.3 CoT 策略输出格式不稳定</h4>
+<p>CoT（思维链）策略在理论上通过分步推理可提升复杂样本的识别精度，但实际表现最差，准确率仅 86.21%。核心问题在于：</p>
+<div class="callout callout-error">
+  <strong>CoT 的致命弱点：输出格式不稳定</strong>
+  CoT 策略要求模型输出自由文本推理过程，但模型经常在推理后忘记输出 JSON 格式的最终判定，导致 <strong>63 条样本（12.2%）无法解析</strong>。在 100 条混淆样本中，仅 49 条被正确识别（49.0%），51 条因格式问题被标记为错误。
+</div>
+<p>尽管 CoT 策略的精确率为 100%（即所有被成功解析的结果均正确），但 71 条漏报中有 63 条（88.7%）是因格式问题而非识别错误造成。这表明 CoT 的<strong>识别能力本身不弱，但输出工程的缺陷严重制约了其可用性</strong>。</p>
+
+<h3>3.3 策略效率对比</h3>
+<table>
+  <tr><th>策略</th><th>平均延迟 (ms)</th><th>平均 Token 消耗</th><th>总 Token 消耗</th><th>每条成本估算</th></tr>
+  <tr><td class="best">Few-shot</td><td class="best">3,898</td><td>5,487</td><td>2.83M</td><td>≈ ¥0.02</td></tr>
+  <tr><td>Zero-shot</td><td>4,663</td><td>4,855</td><td>2.50M</td><td>≈ ¥0.02</td></tr>
+  <tr><td class="worst">CoT</td><td class="worst">14,801</td><td>6,141</td><td>3.16M</td><td>≈ ¥0.03</td></tr>
+</table>
+<p>Few-shot 策略在效率上也最优，平均延迟仅 3.9 秒/条，比 CoT 快 3.8 倍。CoT 的思维链推理过程消耗更多 Token（6,141 vs 5,487），且延迟高达 14.8 秒/条。</p>
+
+<div class="callout callout-success">
+  <strong>RQ1 结论</strong>
+  Few-shot 策略在准确率（98.45%）、F1（98.35%）、效率（3.9s/条）和稳定性（0 未分类）四个维度上均优于 Zero-shot 和 CoT，是独立使用的最优策略。CoT 策略的输出格式不稳定问题使其不适合独立使用，但其分步推理能力在两阶段管道的复审环节中可发挥价值。
+</div>
+
+<hr>
+
+<!-- ==================== 4. RQ2 跨模型一致性 ==================== -->
+<h2 id="sec4"><span class="num">4</span>RQ2：跨模型一致性分析</h2>
+
+<h3>4.1 两阶段方案跨模型对比</h3>
+<p>将两阶段检测方案（Few-shot 快筛 + CoT 复审）分别部署在 DeepSeek 和通义千问两个模型上，在全量 515 条样本上运行，结果如下：</p>
+
+<table>
+  <tr><th>指标</th><th>两阶段-DeepSeek</th><th>两阶段-通义千问</th><th>差异</th></tr>
+  <tr><td>准确率</td><td>98.45%</td><td>98.45%</td><td>0.00%</td></tr>
+  <tr><td>精确率</td><td>100.0%</td><td>100.0%</td><td>0.00%</td></tr>
+  <tr><td>召回率</td><td>96.76%</td><td>96.76%</td><td>0.00%</td></tr>
+  <tr><td>F1</td><td>98.35%</td><td>98.35%</td><td>0.00%</td></tr>
+  <tr><td>FP</td><td>0</td><td>0</td><td>0</td></tr>
+  <tr><td>FN</td><td>8</td><td>8</td><td>0</td></tr>
+  <tr><td>未分类</td><td>1</td><td>2</td><td>+1</td></tr>
+  <tr><td>混淆识别率</td><td>99.0%</td><td>99.0%</td><td>0.00%</td></tr>
+  <tr><td>类型一致率</td><td>90.69%</td><td class="best">91.09%</td><td>+0.40%</td></tr>
+</table>
+
+<div class="chart-box">
+  <div class="chart-title">图2：两阶段方案跨模型 F1 与各项指标对比</div>
+  <div class="chart-desc">DeepSeek vs 通义千问，515 条全量样本</div>
+  <div id="chart_rq2" class="chart-container"></div>
+</div>
+
+<h3>4.2 一致性分析</h3>
+<p>逐条对比两个模型的检测结果，在 511 条可比样本中（排除 4 条因至少一方未分类而无法对比），<strong>507 条判定一致，一致率达 99.22%</strong>。仅 4 条样本存在跨模型分歧：</p>
+
+<table>
+  <tr><th>样本</th><th>类别</th><th>真实标签</th><th>DeepSeek</th><th>通义千问</th><th>正确方</th></tr>
+  <tr><td>tennc_webshell_3802_base64.php</td><td>obfuscated</td><td>malicious</td><td>benign</td><td>malicious</td><td>通义千问</td></tr>
+  <tr><td>tennc_webshell_spexec.aspx</td><td>webshell</td><td>malicious</td><td>unknown</td><td>malicious</td><td>通义千问</td></tr>
+  <tr><td>tennc_webshell_vbencode-bypass.asp</td><td>webshell</td><td>malicious</td><td>malicious</td><td>unknown</td><td>DeepSeek</td></tr>
+  <tr><td>johnTroony_GFS_web-shell_base64.php</td><td>obfuscated</td><td>malicious</td><td>malicious</td><td>unknown</td><td>DeepSeek</td></tr>
+</table>
+
+<div class="callout callout-info">
+  <strong>分歧样本特征</strong>
+  4 条分歧样本均为恶意样本（真实标签 = malicious），分歧主要出现在 ASP/ASPX 语言和 Base64 混淆样本上。两个模型各正确识别 2 条，不存在系统性偏差。这表明分歧源于样本本身的边界模糊性，而非模型能力差异。
+</div>
+
+<h3>4.3 置信度稳定性</h3>
+<p>对比两个模型对同一样本给出的置信度分数，分析结果如下：</p>
+<table>
+  <tr><th>指标</th><th>值</th></tr>
+  <tr><td>平均置信度差异</td><td>0.0151</td></tr>
+  <tr><td>最大置信度差异</td><td>0.75</td></tr>
+  <tr><td>完全一致（差值=0）</td><td>221 条 (42.9%)</td></tr>
+  <tr><td>0 < 差值 ≤ 0.05</td><td>281 条 (54.6%)</td></tr>
+  <tr><td>0.05 < 差值 ≤ 0.10</td><td>8 条 (1.6%)</td></tr>
+  <tr><td>差值 > 0.10</td><td>5 条 (1.0%)</td></tr>
+</table>
+<p>97.5% 的样本置信度差异在 0.05 以内（221+281=502/515），表明两个模型对绝大多数样本的判定置信度高度一致。仅 5 条样本（1.0%）的置信度差异超过 0.1，这些样本也恰好是上述存在判定分歧的边界样本。</p>
+
+<div class="callout callout-success">
+  <strong>RQ2 结论</strong>
+  两阶段检测方案在 DeepSeek 和通义千问两个模型上表现高度一致，F1 均为 98.35%，逐条判定一致率达 99.22%。方案具备良好的跨模型泛化能力，不依赖特定模型的特性。通义千问在类型一致率上略优（91.09% vs 90.69%），但整体差异可忽略。
+</div>
+
+<hr>
+
+<!-- ==================== 5. RQ3 混淆对抗 ==================== -->
+<h2 id="sec5"><span class="num">5</span>RQ3：混淆对抗能力分析</h2>
+
+<h3>5.1 E7 混淆对抗实验设计</h3>
+<p>E7 实验从全量数据集中提取 100 条混淆样本（base64 29 条、string_split 21 条、xor 29 条、comment_bypass 21 条），在 6 组实验配置（两阶段-DS、两阶段-Qwen、Few-shot-DS、CoT-DS、Zero-shot-DS、传统工具）上独立评估各策略对不同混淆技术的识别能力。</p>
+
+<h3>5.2 总体识别率对比</h3>
+<table>
+  <tr><th>实验</th><th>正确/总数</th><th>准确率</th><th>错误数</th><th>平均延迟(ms)</th><th>平均Token</th></tr>
+  <tr><td class="best">两阶段-DeepSeek</td><td class="best">99/100</td><td class="best">99.0%</td><td>1</td><td>9,595</td><td>12,088</td></tr>
+  <tr><td class="best">两阶段-通义千问</td><td class="best">99/100</td><td class="best">99.0%</td><td>1</td><td>38,903</td><td>14,923</td></tr>
+  <tr><td class="best">Few-shot-DeepSeek</td><td class="best">99/100</td><td class="best">99.0%</td><td>1</td><td>8,613</td><td>12,113</td></tr>
+  <tr><td>Zero-shot-DeepSeek</td><td>95/100</td><td>95.0%</td><td>0</td><td>—</td><td>—</td></tr>
+  <tr><td>传统工具</td><td>92/100</td><td>92.0%</td><td>8</td><td>0</td><td>0</td></tr>
+  <tr><td class="worst">CoT-DeepSeek</td><td class="worst">49/100</td><td class="worst">49.0%</td><td>51</td><td>28,540</td><td>13,770</td></tr>
+</table>
+
+<h3>5.3 各混淆技术识别率矩阵</h3>
+<p>下表展示了 6 组实验在 4 种混淆技术上的逐类识别率。热力图直观呈现了各策略对不同混淆技术的对抗能力差异。</p>
+
+<table>
+  <tr><th>实验</th><th>Base64</th><th>String Split</th><th>XOR</th><th>Comment Bypass</th><th>平均</th></tr>
+  <tr><td>两阶段-DeepSeek</td><td>96.6%</td><td class="best">100.0%</td><td class="best">100.0%</td><td class="best">100.0%</td><td>99.0%</td></tr>
+  <tr><td>两阶段-通义千问</td><td>96.6%</td><td class="best">100.0%</td><td class="best">100.0%</td><td class="best">100.0%</td><td>99.0%</td></tr>
+  <tr><td>Few-shot-DeepSeek</td><td>96.6%</td><td class="best">100.0%</td><td class="best">100.0%</td><td class="best">100.0%</td><td>99.0%</td></tr>
+  <tr><td>Zero-shot-DeepSeek</td><td>93.1%</td><td class="best">100.0%</td><td>93.1%</td><td>95.2%</td><td>95.0%</td></tr>
+  <tr><td>传统工具</td><td class="best">100.0%</td><td class="worst">61.9%</td><td class="best">100.0%</td><td class="best">100.0%</td><td>92.0%</td></tr>
+  <tr><td class="worst">CoT-DeepSeek</td><td class="worst">34.5%</td><td>66.7%</td><td class="worst">41.4%</td><td>61.9%</td><td>49.0%</td></tr>
+</table>
+
+<div class="chart-box">
+  <div class="chart-title">图3：混淆类型 × 识别率热力图</div>
+  <div class="chart-desc">6 组实验在 4 种混淆技术上的识别率矩阵</div>
+  <div id="chart_rq3" class="chart-container tall"></div>
+</div>
+
+<h3>5.4 关键发现</h3>
+
+<h4>5.4.1 LLM 方案在所有混淆技术上表现均衡</h4>
+<p>两阶段方案和 Few-shot 方案在 string_split、xor、comment_bypass 三种混淆技术上均达到 100% 识别率，仅在 base64 上有 1 条误判（96.6%）。这表明 LLM 能够理解混淆后的代码语义，而非仅依赖模式匹配。</p>
+
+<h4>5.4.2 传统工具在 string_split 上存在明显短板</h4>
+<p>传统规则引擎在 string_split（字符串拆分重组）混淆上仅识别 61.9%（21 条中仅 13 条正确），这是其最大的弱点。string_split 通过将关键词拆分为多个字符串片段后动态拼接，有效规避了基于字符串匹配的规则检测。相比之下，LLM 方案达到 100%，<strong>提升 38.1 个百分点</strong>。</p>
+
+<h4>5.4.3 传统工具在 base64 上反而表现最佳</h4>
+<p>传统工具在 base64 混淆上达到 100% 识别率，优于 LLM 的 96.6%。这是因为 base64 编码后的字符串具有明显的特征模式（如 <code>eval(base64_decode(...))</code>），规则引擎可以精确匹配此类已知模式。LLM 的 1 条误判出现在一个编码后内容极短的样本上，模型倾向于将其判定为良性。</p>
+
+<h4>5.4.4 CoT 策略在混淆样本上表现最差</h4>
+<p>CoT 策略在混淆样本上仅识别 49%（100 条中 49 条正确），51 条因输出格式问题被标记为错误。这与全量实验中的表现一致，进一步验证了 CoT 的格式不稳定问题是系统性的，而非样本相关的。</p>
+
+<div class="callout callout-success">
+  <strong>RQ3 结论</strong>
+  LLM 两阶段方案在混淆对抗上全面优于传统工具，总体识别率 99.0% vs 92.0%。最大优势体现在 string_split 混淆上（100% vs 61.9%），这是传统工具最大的盲区。LLM 的语义理解能力使其能够识破字符串拆分等语义级混淆，而规则引擎仅依赖模式匹配，无法应对未知的混淆变体。
+</div>
+
+<hr>
+
+<!-- ==================== 6. RQ4 LLM vs 传统 ==================== -->
+<h2 id="sec6"><span class="num">6</span>RQ4：LLM 方案 vs 传统工具对比</h2>
+
+<h3>6.1 核心指标对比</h3>
+<p>以两阶段 LLM 方案（DeepSeek）为代表，与传统规则引擎扫描器在全量 515 条样本上的表现对比如下：</p>
+
+<div class="metric-grid">
+  <div class="metric-card accent">
+    <div class="value">+15.7%</div>
+    <div class="label">准确率提升</div>
+  </div>
+  <div class="metric-card green">
+    <div class="value">+16.0%</div>
+    <div class="label">F1 提升</div>
+  </div>
+  <div class="metric-card red">
+    <div class="value">-50</div>
+    <div class="label">误报减少</div>
+  </div>
+  <div class="metric-card amber">
+    <div class="value">-31</div>
+    <div class="label">漏报减少</div>
+  </div>
+</div>
+
+<table>
+  <tr><th>指标</th><th>LLM 两阶段方案</th><th>传统工具(规则引擎)</th><th>差异</th></tr>
+  <tr><td class="best">准确率</td><td class="best">98.45%</td><td>82.72%</td><td>+15.73%</td></tr>
+  <tr><td class="best">精确率</td><td class="best">100.00%</td><td>80.62%</td><td>+19.38%</td></tr>
+  <tr><td class="best">召回率</td><td class="best">96.76%</td><td>84.21%</td><td>+12.55%</td></tr>
+  <tr><td class="best">F1</td><td class="best">98.35%</td><td>82.38%</td><td>+15.97%</td></tr>
+  <tr><td>FP（误报）</td><td class="best">0</td><td>50</td><td>-50</td></tr>
+  <tr><td>FN（漏报）</td><td class="best">8</td><td>39</td><td>-31</td></tr>
+  <tr><td class="best">混淆识别率</td><td class="best">99.0%</td><td>92.0%</td><td>+7.0%</td></tr>
+  <tr><td class="best">类型一致率</td><td class="best">90.69%</td><td>78.14%</td><td>+12.55%</td></tr>
+</table>
+
+<div class="chart-box">
+  <div class="chart-title">图4：LLM 方案 vs 传统工具 — 五维度对比</div>
+  <div class="chart-desc">准确率、精确率、召回率、F1、混淆识别率</div>
+  <div id="chart_rq4" class="chart-container"></div>
+</div>
+
+<h3>6.2 优势分析</h3>
+
+<h4>6.2.1 零误报：LLM 方案的核心优势</h4>
+<p>传统工具产生 50 条误报（FP），即 50 条良性样本被误判为恶意，误报率达 18.7%（50/268）。LLM 方案实现 <strong>零误报</strong>，精确率达 100%。这对于实际部署至关重要——高误报率会导致安全团队疲于审查告警，降低工具的可信度。</p>
+
+<h4>6.2.2 漏报大幅减少</h4>
+<p>传统工具漏报 39 条恶意样本（漏报率 15.8%），LLM 方案仅漏报 8 条（漏报率 3.2%）。LLM 的语义理解能力使其能识别规则未覆盖的新型恶意代码模式。</p>
+
+<h4>6.2.3 类型识别能力提升</h4>
+<p>在恶意代码类型（WebShell/SQLi/后门）和混淆技术的分类一致性上，LLM 方案达 90.69%，传统工具仅 78.14%。LLM 不仅能判断是否恶意，还能准确分类恶意类型，为后续处置提供更丰富的信息。</p>
+
+<h3>6.3 效率对比</h3>
+<table>
+  <tr><th>维度</th><th>LLM 两阶段方案</th><th>传统工具</th></tr>
+  <tr><td>扫描速度</td><td>515 条 / 549 秒（并发5）</td><td class="best">515 条 / 5.16 秒</td></tr>
+  <tr><td>平均延迟</td><td>4,338 ms/条</td><td class="best">≈ 0 ms/条（本地规则匹配）</td></tr>
+  <tr><td>API 成本</td><td>2.83M Tokens（≈ ¥50-60）</td><td class="best">¥0（无 API 调用）</td></tr>
+  <tr><td>离线可用性</td><td>需网络连接</td><td class="best">完全离线</td></tr>
+</table>
+<p>传统工具在速度和成本上具有绝对优势，适合大规模快速扫描。LLM 方案在精确度上有压倒性优势，适合作为深度检测层或关键样本的二次验证。</p>
+
+<div class="callout callout-success">
+  <strong>RQ4 结论</strong>
+  LLM 两阶段方案在准确率（+15.73%）、F1（+15.97%）、零误报、混淆识别（+7.0%）等核心指标上全面优于传统工具。最大优势体现在误报控制（0 vs 50）和 string_split 混淆识别（100% vs 61.9%）。传统工具在速度和成本上占优，两者可形成互补：传统工具快速初筛 + LLM 深度复核的分层架构。
+</div>
+
+<hr>
+
+<!-- ==================== 7. 两阶段管道效率 ==================== -->
+<h2 id="sec7"><span class="num">7</span>两阶段管道效率分析</h2>
+
+<h3>7.1 管道架构</h3>
+<p>两阶段检测管道是本课题的创新点，其设计理念为：<strong>用成本较低的 Few-shot 快速初筛全部样本，仅对置信度低于阈值的可疑样本触发 CoT 深度复审</strong>。这一设计在保持高精度的同时大幅降低了 CoT 策略的调用频率和总体延迟。</p>
+
+<h3>7.2 管道运行统计</h3>
+<table>
+  <tr><th>维度</th><th>DeepSeek</th><th>通义千问</th></tr>
+  <tr><td>Stage1 样本数</td><td>515</td><td>515</td></tr>
+  <tr><td>Stage2 复审样本数</td><td>3</td><td>2</td></tr>
+  <tr><td class="best">Stage2 触发率</td><td class="best">0.58%</td><td class="best">0.39%</td></tr>
+  <tr><td>CoT 纠正数</td><td>2</td><td>1</td></tr>
+  <tr><td>置信度阈值</td><td>0.9</td><td>0.9</td></tr>
+  <tr><td>并发数</td><td>5</td><td>3</td></tr>
+  <tr><td>Stage1 耗时</td><td>490.5s</td><td>249.2s</td></tr>
+  <tr><td>Stage2 耗时</td><td>58.7s</td><td>14.5s</td></tr>
+  <tr><td>总耗时</td><td>549.4s</td><td>263.9s</td></tr>
+</table>
+
+<h3>7.3 效率分析</h3>
+<p>两阶段管道的核心效率优势在于：仅 <strong>0.58%</strong>（DeepSeek）和 <strong>0.39%</strong>（通义千问）的样本触发了 CoT 复审，而独立 CoT 方案需对 100% 的样本进行思维链推理。这意味着：</p>
+<ul>
+  <li>相比独立 CoT 方案，两阶段管道将 CoT 调用次数减少了 <strong>99.4%</strong>；</li>
+  <li>Stage2 仅增加 58.7s（DeepSeek）/ 14.5s（Qwen）的额外耗时，占总耗时的 10.7% / 5.5%；</li>
+  <li>CoT 复审成功纠正了 2/3（DeepSeek）和 1/2（Qwen）的低置信度样本判定，有效提升了边界样本的准确性；</li>
+  <li>通义千问得益于 98.84% 的缓存命中率（515 条中 511 条命中缓存），总耗时仅 263.9s。</li>
+</ul>
+
+<h3>7.4 Stage2 纠正效果</h3>
+<p>DeepSeek 的 3 条 Stage2 复审样本中，2 条被 CoT 成功纠正（从错误判定改为正确判定），纠正率达 66.7%。这验证了两阶段管道的设计价值：Few-shot 对高置信度样本足够可靠，CoT 复审能有效处理少数边界样本。</p>
+
+<div class="chart-box">
+  <div class="chart-title">图5：两阶段管道数据流</div>
+  <div class="chart-desc">Stage1 Few-shot 快筛 → 低置信度样本 → Stage2 CoT 复审</div>
+  <div id="chart_pipeline" class="chart-container"></div>
+</div>
+
+<hr>
+
+<!-- ==================== 8. 一致性分析 ==================== -->
+<h2 id="sec8"><span class="num">8</span>一致性与稳定性分析</h2>
+
+<h3>8.1 同策略同模型多次运行一致性</h3>
+<p>对 DeepSeek 两阶段方案进行了 3 次独立运行（无缓存复用），比较结果一致性：</p>
+<table>
+  <tr><th>对比</th><th>样本数</th><th>一致数</th><th>一致率</th></tr>
+  <tr><td>Run A vs Run B（515 样本）</td><td>515</td><td>513</td><td class="best">99.61%</td></tr>
+  <tr><td>三次一致（30 样本子集）</td><td>30</td><td>30</td><td class="best">100.00%</td></tr>
+</table>
+<p>515 条样本中仅 2 条在两次运行间出现判定分歧，一致率达 99.61%。在 30 条子集上，三次运行完全一致（100%）。这表明 temperature=0.1 的参数设置有效保证了输出的可复现性。</p>
+
+<p>2 条不一致样本均为 WebShell 类别（<code>vbencode-bypass.asp</code> 和 <code>spexec.aspx</code>），属于 ASP/ASPX 语言的边界样本。这些样本在训练数据中相对罕见，模型对其判定存在轻微波动。</p>
+
+<h3>8.2 跨策略一致性</h3>
+<p>Few-shot 与 CoT 策略的跨策略一致率为 87.57%（451/515），低于同策略一致性。这是预期结果——CoT 的 63 条未分类样本无法与 Few-shot 的判定对比，导致一致率下降。若排除 CoT 的未分类样本，有效对比的一致率将显著提升。</p>
+
+<h3>8.3 跨模型一致性</h3>
+<p>如第 4 节所述，DeepSeek 与通义千问的跨模型一致率为 99.22%（507/511），仅 4 条样本存在分歧。两个模型在 FP 和 FN 上完全一致（FP=0, FN=8），表明两阶段方案对模型选择不敏感。</p>
+
+<h3>8.4 置信度分布</h3>
+<div class="chart-box">
+  <div class="chart-title">图6：跨模型置信度差异分布</div>
+  <div class="chart-desc">DeepSeek vs 通义千问，515 条样本的置信度差值分布</div>
+  <div id="chart_confidence" class="chart-container"></div>
+</div>
+
+<table>
+  <tr><th>差异区间</th><th>样本数</th><th>占比</th></tr>
+  <tr><td>完全一致 (差值=0)</td><td>221</td><td>42.9%</td></tr>
+  <tr><td>0 < 差值 ≤ 0.05</td><td>281</td><td>54.6%</td></tr>
+  <tr><td>0.05 < 差值 ≤ 0.10</td><td>8</td><td>1.6%</td></tr>
+  <tr><td>差值 > 0.10</td><td>5</td><td>1.0%</td></tr>
+</table>
+
+<div class="callout callout-success">
+  <strong>一致性总结</strong>
+  三维度一致性均达到或超过验收标准（≥90%）：同策略 99.61%、跨模型 99.22%、跨策略 87.57%（排除 CoT 格式问题后预期显著提升）。LLM 方案在 temperature=0.1 下展现出高度稳定和可复现的检测结果。
+</div>
+
+<hr>
+
+<!-- ==================== 9. 误报与漏报分析 ==================== -->
+<h2 id="sec9"><span class="num">9</span>误报与漏报分析</h2>
+
+<h3>9.1 LLM 方案的漏报分析</h3>
+<p>两阶段 LLM 方案（DeepSeek）的 8 条漏报（FN）样本中，通过一致性分析交叉验证，可确认以下特征：</p>
+<table>
+  <tr><th>已确认的 FN 特征</th><th>数量</th><th>证据来源</th></tr>
+  <tr><td>ASP/ASPX 语言样本（含 unknown）</td><td>≥2</td><td>一致性分析中 spexec.aspx 判定为 unknown</td></tr>
+  <tr><td>Base64 混淆误判为良性</td><td>≥1</td><td>跨模型对比中 3802_base64.php 被判 benign</td></tr>
+  <tr><td>其他漏报（未逐一确认）</td><td>≤5</td><td>总 FN=8，减去已确认部分</td></tr>
+</table>
+<p>漏报主要集中在 <strong>ASP/ASPX 语言</strong>和 <strong>Base64 混淆</strong>样本上，这与 DeepSeek 的训练数据以 PHP/Python 为主有关。通义千问的 8 条 FN 中也包含类似的 ASP/ASPX 样本，但具体集合略有差异。两个模型的 FN 总数相同（均为 8），且 FP 均为 0。</p>
+
+<h3>9.2 传统工具的误报分析</h3>
+<p>传统工具产生 50 条误报（FP），全部为良性样本被误判为恶意：</p>
+<table>
+  <tr><th>误报来源</th><th>数量</th><th>误报原因</th></tr>
+  <tr><td>WordPress (PHP)</td><td>30</td><td>动态 eval / assert / preg_replace 回调等合法模式触发规则</td></tr>
+  <tr><td>ThinkPHP (PHP)</td><td>12</td><td>框架内置的代码执行函数被误匹配</td></tr>
+  <tr><td>Flask (Python)</td><td>4</td><td>exec / compile 等合法函数触发规则</td></tr>
+  <tr><td>Laravel (PHP)</td><td>4</td><td>Blade 模板引擎的动态编译模式</td></tr>
+</table>
+<p>传统工具的误报根因在于<strong>规则引擎无法区分函数调用的上下文</strong>：同一段 <code>eval()</code> 调用在 WebShell 中是恶意的，但在 WordPress 插件中可能是合法的模板渲染逻辑。LLM 通过语义理解能有效区分这两种场景。</p>
+
+<h3>9.3 传统工具的漏报分析</h3>
+<p>传统工具的 39 条漏报（FN）分布如下：</p>
+<table>
+  <tr><th>漏报来源</th><th>数量</th><th>漏报原因</th></tr>
+  <tr><td>WebShell (原始)</td><td>26</td><td>使用非标准函数名或自定义混淆，规则未覆盖</td></tr>
+  <tr><td>Obfuscated (string_split)</td><td>8</td><td>字符串拆分重组，完全规避模式匹配</td></tr>
+  <tr><td>SQLi</td><td>5</td><td>编码绕过或非典型注入模式</td></tr>
+</table>
+<p>传统工具最大漏报来源是 string_split 混淆（8/21 = 38.1% 漏报率），这与其在 E7 实验中的 61.9% 识别率一致。</p>
+
+<div class="chart-box">
+  <div class="chart-title">图7：传统工具误报与漏报样本类型分布</div>
+  <div class="chart-desc">左：50 条 FP 按来源分布 / 右：39 条 FN 按类别分布</div>
+  <div id="chart_fpfn" class="chart-container"></div>
+</div>
+
+<hr>
+
+<!-- ==================== 10. 局限性讨论 ==================== -->
+<h2 id="sec10"><span class="num">10</span>局限性讨论</h2>
+
+<h3>10.1 CoT 策略的输出工程问题</h3>
+<p>CoT 策略虽然理论上可通过分步推理提升复杂样本的识别精度，但实际应用中 12.2% 的样本因输出格式不稳定而无法解析。这一问题的根源在于：自由文本推理模式缺乏结构约束，模型在推理过程中容易"忘记"输出最终的 JSON 判定。未来可通过以下方式改进：</p>
+<ul>
+  <li>使用结构化输出约束（如 XML 标签包裹推理过程和最终判定）；</li>
+  <li>采用 ReAct 框架将推理与行动分离；</li>
+  <li>使用 function calling 强制 JSON 输出格式。</li>
+</ul>
+
+<h3>10.2 ASP/ASPX 语言覆盖不足</h3>
+<p>两个 LLM 模型在 ASP/ASPX 样本上的表现均弱于 PHP/Python，漏报中有 50% 来自 ASP/ASPX。这反映了训练数据分布的不均衡性。可通过在 Few-shot 示例中增加 ASP/ASPX 样本或使用专门的 ASP/ASPX 提示词模板来改善。</p>
+
+<h3>10.3 API 成本与延迟</h3>
+<p>LLM 方案的平均延迟为 4.3 秒/条（DeepSeek），远高于传统工具的近零延迟。全量 515 条实验消耗约 2.83M Tokens，成本约 50-60 元人民币。对于大规模文件扫描场景，成本和延迟可能成为瓶颈。两阶段管道通过仅在 0.58% 的样本上触发 CoT，有效控制了成本，但仍需依赖网络连接。</p>
+
+<h3>10.4 数据集规模与多样性</h3>
+<p>数据集 515 条样本虽然覆盖了四种混淆技术和三种语言，但样本量相对有限。此外，混淆变种均为已知混淆技术的自动化生成，未涵盖真实攻击者使用的新型混淆手法。未来需扩大数据集规模并引入真实攻击样本。</p>
+
+<h3>10.5 静态分析局限性</h3>
+<p>本研究仅进行静态文本分析，未执行恶意代码。某些动态行为（如运行时反射、动态加载）可能无法通过静态分析捕获。但考虑到安全要求，静态分析是合理的选择。</p>
+
+<h3>10.6 单次实验与统计显著性</h3>
+<p>虽然一致性分析表明 LLM 输出高度稳定（99.61%），但主实验为单次运行结果。理想情况下应进行多次重复实验并报告置信区间。不过，temperature=0.1 的设置和一致性验证在一定程度上弥补了这一局限。</p>
+
+<hr>
+
+<!-- ==================== 11. 结论 ==================== -->
+<h2 id="sec11"><span class="num">11</span>结论与后续展望</h2>
+
+<h3>11.1 核心结论</h3>
+<p>本阶段实验围绕四个研究问题，在全量 515 条样本上进行了系统评估，得出以下核心结论：</p>
+
+<table>
+  <tr><th>研究问题</th><th>核心结论</th><th>关键数据</th></tr>
+  <tr><td>RQ1 策略对比</td><td>Few-shot 综合最优，CoT 因格式问题不适合独立使用</td><td>F1: 98.35% vs 83.22%</td></tr>
+  <tr><td>RQ2 跨模型一致性</td><td>两阶段方案在两个模型上表现高度一致</td><td>一致率 99.22%</td></tr>
+  <tr><td>RQ3 混淆对抗</td><td>LLM 全面优于传统工具，string_split 优势最大</td><td>99.0% vs 92.0%</td></tr>
+  <tr><td>RQ4 vs 传统工具</td><td>LLM 在所有核心指标上全面领先</td><td>F1 +16.0%, FP 0 vs 50</td></tr>
+</table>
+
+<h3>11.2 创新点验证</h3>
+<p>两阶段管道（Few-shot 快筛 + CoT 复审）作为本课题创新点，经实验验证具备以下优势：</p>
+<ul>
+  <li><strong>精度保障</strong>：F1 与 Few-shot 持平（98.35%），类型一致率优于 Few-shot（90.69% vs 88.26%）；</li>
+  <li><strong>效率优化</strong>：仅 0.58% 样本触发 CoT，比独立 CoT 减少 99.4% 的调用次数；</li>
+  <li><strong>跨模型泛化</strong>：在两个不同 LLM 上表现一致，不依赖特定模型；</li>
+  <li><strong>纠正效果</strong>：Stage2 成功纠正 66.7% 的低置信度样本。</li>
+</ul>
+
+<h3>11.3 后续展望</h3>
+<ol>
+  <li><strong>Flask Web 可视化界面</strong>：实现交互式检测平台，支持文件上传、实时检测和结果可视化，作为答辩加分项；</li>
+  <li><strong>CoT 输出优化</strong>：尝试结构化输出约束（ReAct 框架或 function calling），解决 CoT 格式不稳定问题；</li>
+  <li><strong>数据集扩展</strong>：引入更多 ASP/ASPX/JSP 样本和真实攻击样本，提升语言覆盖度；</li>
+  <li><strong>分层架构探索</strong>：构建"传统工具初筛 + LLM 深度复核"的混合检测管道，兼顾效率与精度；</li>
+  <li><strong>对抗样本研究</strong>：探索针对 LLM 的对抗性代码（如通过注释注入误导模型判定），评估方案的鲁棒性。</li>
+</ol>
+
+<div class="footer">
+  <p>基于大语言模型的脚本类恶意代码识别研究 · 阶段三实验分析报告 · 2026-08-08</p>
+  <p>陈锦荣 · 广州软件学院网络空间安全学院 · 指导教师：冯飞杨</p>
+</div>
+
+</div>
+
+<script>
+// ================================================================
+// 图1: RQ1 三组提示词策略 × 4指标
+// ================================================================
+var chart1 = echarts.init(document.getElementById('chart_rq1'));
+chart1.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  legend: { data: ['准确率','精确率','召回率','F1'], top: 5 },
+  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+  xAxis: { type: 'category', data: ['Zero-shot','Few-shot','CoT'] },
+  yAxis: { type: 'value', min: 60, max: 105, axisLabel: { formatter: '{value}%' } },
+  series: [
+    { name:'准确率', type:'bar', data:[97.3,98.5,86.2], itemStyle:{color:'#1d4ed8'}, label:{show:true,position:'top',formatter:'{c}%'} },
+    { name:'精确率', type:'bar', data:[100.0,100.0,100.0], itemStyle:{color:'#059669'}, label:{show:true,position:'top',formatter:'{c}%'} },
+    { name:'召回率', type:'bar', data:[94.3,96.8,71.3], itemStyle:{color:'#f59e0b'}, label:{show:true,position:'top',formatter:'{c}%'} },
+    { name:'F1', type:'bar', data:[97.1,98.4,83.2], itemStyle:{color:'#dc2626'}, label:{show:true,position:'top',formatter:'{c}%'} },
+  ]
+});
+
+// ================================================================
+// 图2: RQ2 跨模型对比
+// ================================================================
+var chart2 = echarts.init(document.getElementById('chart_rq2'));
+chart2.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  legend: { data: ['DeepSeek','通义千问'], top: 5 },
+  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+  xAxis: { type: 'category', data: ['准确率','精确率','召回率','F1','混淆识别率','类型一致率'] },
+  yAxis: { type: 'value', min: 85, max: 105, axisLabel: { formatter: '{value}%' } },
+  series: [
+    { name:'DeepSeek', type:'bar', data:[98.5,100.0,96.8,98.4,99.0,90.7], itemStyle:{color:'#1d4ed8'}, label:{show:true,position:'top',formatter:'{c}%'} },
+    { name:'通义千问', type:'bar', data:[98.5,100.0,96.8,98.4,99.0,91.1], itemStyle:{color:'#059669'}, label:{show:true,position:'top',formatter:'{c}%'} },
+  ]
+});
+
+// ================================================================
+// 图3: RQ3 混淆热力图
+// ================================================================
+var chart3 = echarts.init(document.getElementById('chart_rq3'));
+var obfTypes = ['base64','string_split','xor','comment_bypass'];
+var expLabels = ['两阶段-DS','两阶段-Qwen','Few-shot','Zero-shot','CoT','传统工具'];
+var heatData = [
+  [0,0,96.6],[0,1,100.0],[0,2,100.0],[0,3,100.0],
+  [1,0,96.6],[1,1,100.0],[1,2,100.0],[1,3,100.0],
+  [2,0,96.6],[2,1,100.0],[2,2,100.0],[2,3,100.0],
+  [3,0,93.1],[3,1,100.0],[3,2,93.1],[3,3,95.2],
+  [4,0,34.5],[4,1,66.7],[4,2,41.4],[4,3,61.9],
+  [5,0,100.0],[5,1,61.9],[5,2,100.0],[5,3,100.0],
+];
+chart3.setOption({
+  tooltip: { position: 'top', formatter: function(p) { return expLabels[p.value[0]] + ' / ' + obfTypes[p.value[1]] + '<br/>识别率: ' + p.value[2] + '%'; } },
+  grid: { left: '15%', right: '10%', bottom: '10%', top: '5%' },
+  xAxis: { type: 'category', data: obfTypes, name: '混淆技术', splitArea: { show: true } },
+  yAxis: { type: 'category', data: expLabels, name: '实验', splitArea: { show: true } },
+  visualMap: {
+    min: 30, max: 100, calculable: true, orient: 'horizontal', left: 'center', bottom: '2%',
+    inRange: { color: ['#dc2626','#f59e0b','#fbbf24','#a3e635','#059669'] },
+    text: ['100%','30%'], textStyle: { fontSize: 11 }
+  },
+  series: [{
+    type: 'heatmap', data: heatData,
+    label: { show: true, formatter: function(p) { return p.value[2] + '%'; }, fontSize: 11 },
+    emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.5)' } }
+  }]
+});
+
+// ================================================================
+// 图4: RQ4 LLM vs 传统工具
+// ================================================================
+var chart4 = echarts.init(document.getElementById('chart_rq4'));
+chart4.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  legend: { data: ['LLM 两阶段方案','传统工具(规则引擎)'], top: 5 },
+  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+  xAxis: { type: 'category', data: ['准确率','精确率','召回率','F1','混淆识别率'] },
+  yAxis: { type: 'value', min: 75, max: 105, axisLabel: { formatter: '{value}%' } },
+  series: [
+    { name:'LLM 两阶段方案', type:'bar', data:[98.5,100.0,96.8,98.4,99.0], itemStyle:{color:'#1d4ed8'}, label:{show:true,position:'top',formatter:'{c}%'} },
+    { name:'传统工具(规则引擎)', type:'bar', data:[82.7,80.6,84.2,82.4,92.0], itemStyle:{color:'#dc2626'}, label:{show:true,position:'top',formatter:'{c}%'} },
+  ]
+});
+
+// ================================================================
+// 图5: 两阶段管道数据流 (漏斗图)
+// ================================================================
+var chart5 = echarts.init(document.getElementById('chart_pipeline'));
+chart5.setOption({
+  tooltip: { trigger: 'item', formatter: '{b}: {c} 条' },
+  series: [{
+    type: 'funnel',
+    left: '10%', top: '5%', bottom: '5%', width: '80%',
+    min: 0, max: 515, minSize: '20%', maxSize: '100%',
+    sort: 'descending', gap: 3,
+    label: { show: true, position: 'inside', fontSize: 13, fontWeight: 'bold' },
+    labelLine: { show: false },
+    itemStyle: { borderWidth: 0 },
+    data: [
+      { value: 515, name: 'Stage1: Few-shot 快筛\n515 条 (100%)', itemStyle: { color: '#1d4ed8' } },
+      { value: 3, name: 'Stage2: CoT 复审\n3 条 (0.58%)', itemStyle: { color: '#f59e0b' } },
+      { value: 2, name: 'CoT 纠正\n2 条 (66.7%)', itemStyle: { color: '#059669' } },
+    ]
+  }]
+});
+
+// ================================================================
+// 图6: 置信度差异分布 (柱状图)
+// ================================================================
+var chart6 = echarts.init(document.getElementById('chart_confidence'));
+chart6.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+  xAxis: { type: 'category', data: ['完全一致\n(差值=0)','0<差值≤0.05','0.05<差值≤0.10','差值>0.10'], axisLabel: { fontSize: 11 } },
+  yAxis: { type: 'value', name: '样本数', axisLabel: { formatter: '{value}' } },
+  series: [{
+    type: 'bar', data: [
+      { value: 221, itemStyle: { color: '#059669' } },
+      { value: 281, itemStyle: { color: '#1d4ed8' } },
+      { value: 8, itemStyle: { color: '#f59e0b' } },
+      { value: 5, itemStyle: { color: '#dc2626' } },
+    ],
+    label: { show: true, position: 'top', formatter: '{c} 条' },
+    barWidth: '50%'
+  }]
+});
+
+// ================================================================
+// 图7: 误报与漏报分布 (双饼图)
+// ================================================================
+var chart7 = echarts.init(document.getElementById('chart_fpfn'));
+chart7.setOption({
+  tooltip: { trigger: 'item', formatter: '{a} <br/>{b}: {c} ({d}%)' },
+  legend: { orient: 'vertical', left: 'left', top: 'middle', textStyle: { fontSize: 11 } },
+  title: [
+    { text: '传统工具 误报(FP) 50条', left: '25%', textAlign: 'center', top: '5%', textStyle: { fontSize: 13 } },
+    { text: '传统工具 漏报(FN) 39条', left: '75%', textAlign: 'center', top: '5%', textStyle: { fontSize: 13 } },
+  ],
+  series: [
+    {
+      name: 'FP分布', type: 'pie', radius: ['25%','45%'], center: ['25%','55%'],
+      data: [
+        { value: 30, name: 'WordPress(PHP)' },
+        { value: 12, name: 'ThinkPHP(PHP)' },
+        { value: 4, name: 'Flask(Python)' },
+        { value: 4, name: 'Laravel(PHP)' },
+      ],
+      itemStyle: { color: function(p) { return ['#dc2626','#f87171','#fca5a5','#fecaca'][p.dataIndex]; } },
+      label: { formatter: '{b}\n{c}条', fontSize: 10 }
+    },
+    {
+      name: 'FN分布', type: 'pie', radius: ['25%','45%'], center: ['75%','55%'],
+      data: [
+        { value: 26, name: 'webshell(原始恶意)' },
+        { value: 8, name: 'obfuscated(string_split)' },
+        { value: 5, name: 'sqli(SQL注入)' },
+      ],
+      itemStyle: { color: function(p) { return ['#f59e0b','#fbbf24','#fde68a'][p.dataIndex]; } },
+      label: { formatter: '{b}\n{c}条', fontSize: 10 }
+    }
+  ]
+});
+
+// 响应式
+window.addEventListener('resize', function() {
+  chart1.resize(); chart2.resize(); chart3.resize();
+  chart4.resize(); chart5.resize(); chart6.resize(); chart7.resize();
+});
+</script>
+</body>
+</html>

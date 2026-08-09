@@ -1,0 +1,79 @@
+{
+  "export_time": "2026-08-08T20:02:52.626278",
+  "best_strategy_errors": [
+    {
+      "filename": "tennc_webshell_3802_base64.php",
+      "obfuscation": "base64",
+      "pred_label": "benign",
+      "true_label": "malicious",
+      "confidence": 0.88,
+      "parse_error": ""
+    }
+  ],
+  "traditional_errors": [
+    {
+      "filename": "johnTroony_php_webshells_Ayyildiz_Tim_string_split.php",
+      "obfuscation": "string_split",
+      "pred_label": "benign",
+      "true_label": "malicious",
+      "confidence": 0.1,
+      "parse_error": ""
+    },
+    {
+      "filename": "johnTroony_php_webshells_cpanel_string_split.php",
+      "obfuscation": "string_split",
+      "pred_label": "benign",
+      "true_label": "malicious",
+      "confidence": 0.1,
+      "parse_error": ""
+    },
+    {
+      "filename": "johnTroony_php_webshells_hiddens_shell_string_split.php",
+      "obfuscation": "string_split",
+      "pred_label": "benign",
+      "true_label": "malicious",
+      "confidence": 0.0,
+      "parse_error": ""
+    },
+    {
+      "filename": "tennc_webshell_php_create_function_string_split.php",
+      "obfuscation": "string_split",
+      "pred_label": "benign",
+      "true_label": "malicious",
+      "confidence": 0.0,
+      "parse_error": ""
+    },
+    {
+      "filename": "tennc_webshell_php_custom_script_for_mysql_fix_string_split.php",
+      "obfuscation": "string_split",
+      "pred_label": "benign",
+      "true_label": "malicious",
+      "confidence": 0.3,
+      "parse_error": ""
+    },
+    {
+      "filename": "tennc_webshell_php_custom_spy_for_mysql_string_split.php",
+      "obfuscation": "string_split",
+      "pred_label": "benign",
+      "true_label": "malicious",
+      "confidence": 0.3,
+      "parse_error": ""
+    },
+    {
+      "filename": "tennc_webshell_shell-2021-03-18_string_split.php",
+      "obfuscation": "string_split",
+      "pred_label": "benign",
+      "true_label": "malicious",
+      "confidence": 0.0,
+      "parse_error": ""
+    },
+    {
+      "filename": "tennc_webshell_shell-2021-04-23_string_split.php",
+      "obfuscation": "string_split",
+      "pred_label": "benign",
+      "true_label": "malicious",
+      "confidence": 0.0,
+      "parse_error": ""
+    }
+  ]
+}

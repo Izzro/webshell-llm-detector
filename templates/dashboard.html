@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}数据看板 · LLM 恶意代码检测平台{% endblock %}
+
+{% block content %}
+<h1 class="page-title">数据看板</h1>
+<p class="page-subtitle">数据集统计可视化 — 515 条脚本样本的分布与构成</p>
+
+<!-- 统计卡片 -->
+<div class="stat-grid" id="statCards">
+  <div class="stat-card"><div class="stat-value" id="statTotal">—</div><div class="stat-label">样本总数</div></div>
+  <div class="stat-card green"><div class="stat-value" id="statBenign">—</div><div class="stat-label">良性样本</div></div>
+  <div class="stat-card red"><div class="stat-value" id="statMalicious">—</div><div class="stat-label">恶意样本</div></div>
+  <div class="stat-card amber"><div class="stat-value" id="statObfuscated">—</div><div class="stat-label">混淆变种</div></div>
+</div>
+
+<!-- 图表 -->
+<div class="chart-box">
+  <div class="chart-title">样本分类占比</div>
+  <div class="chart-desc">良性 / WebShell / SQLi / 混淆变种</div>
+  <div id="chartCategory" class="chart-container"></div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+  <div class="chart-box">
+    <div class="chart-title">语言分布</div>
+    <div class="chart-desc">PHP / Python / Text / ASP / JSP</div>
+    <div id="chartLanguage" class="chart-container"></div>
+  </div>
+  <div class="chart-box">
+    <div class="chart-title">混淆类型分布</div>
+    <div class="chart-desc">Base64 / XOR / String Split / Comment Bypass</div>
+    <div id="chartObfuscation" class="chart-container"></div>
+  </div>
+</div>
+
+<!-- 良性样本来源 -->
+<div class="chart-box">
+  <div class="chart-title">良性样本来源分布</div>
+  <div class="chart-desc">WordPress / ThinkPHP / Laravel / Flask</div>
+  <div id="chartBenignSource" class="chart-container"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

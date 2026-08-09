@@ -1,0 +1,316 @@
+{
+  "export_time": "2026-08-08T20:02:52.626278",
+  "experiment": "E7_obfuscated_analysis",
+  "description": "混淆对抗全量实验：最佳策略在全量混淆样本(100条)上的识别能力分析",
+  "best_strategy": "two_stage (Few-shot + CoT review)",
+  "best_provider": "deepseek",
+  "total_obfuscated_samples": 100,
+  "obfuscation_types": [
+    "base64",
+    "string_split",
+    "xor",
+    "comment_bypass"
+  ],
+  "sample_distribution": {
+    "base64": 29,
+    "comment_bypass": 21,
+    "string_split": 21,
+    "xor": 29
+  },
+  "best_strategy_metrics": {
+    "accuracy": 0.99,
+    "precision": 1.0,
+    "recall": 0.99,
+    "f1": 0.995,
+    "obf_by_type": {
+      "base64": 0.9655172413793104,
+      "string_split": 1.0,
+      "xor": 1.0,
+      "comment_bypass": 1.0
+    }
+  },
+  "all_experiments": {
+    "two_stage_deepseek": {
+      "label": "两阶段-DeepSeek",
+      "total_samples": 100,
+      "correct": 99,
+      "accuracy": 0.99,
+      "precision": 1.0,
+      "recall": 0.99,
+      "f1": 0.995,
+      "tp": 99,
+      "fp": 0,
+      "fn": 1,
+      "tn": 0,
+      "unclassified": 0,
+      "obf_by_type": {
+        "base64": {
+          "total": 29,
+          "correct": 28,
+          "recall": 0.9655172413793104
+        },
+        "string_split": {
+          "total": 21,
+          "correct": 21,
+          "recall": 1.0
+        },
+        "xor": {
+          "total": 29,
+          "correct": 29,
+          "recall": 1.0
+        },
+        "comment_bypass": {
+          "total": 21,
+          "correct": 21,
+          "recall": 1.0
+        }
+      },
+      "avg_latency_ms": 9594.8,
+      "avg_tokens": 12088.4,
+      "error_count": 1
+    },
+    "two_stage_qwen": {
+      "label": "两阶段-通义千问",
+      "total_samples": 100,
+      "correct": 99,
+      "accuracy": 0.99,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "tp": 99,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "unclassified": 1,
+      "obf_by_type": {
+        "base64": {
+          "total": 29,
+          "correct": 28,
+          "recall": 0.9655172413793104
+        },
+        "string_split": {
+          "total": 21,
+          "correct": 21,
+          "recall": 1.0
+        },
+        "xor": {
+          "total": 29,
+          "correct": 29,
+          "recall": 1.0
+        },
+        "comment_bypass": {
+          "total": 21,
+          "correct": 21,
+          "recall": 1.0
+        }
+      },
+      "avg_latency_ms": 38903.1,
+      "avg_tokens": 14922.5,
+      "error_count": 1
+    },
+    "few_shot_deepseek": {
+      "label": "Few-shot-DeepSeek",
+      "total_samples": 100,
+      "correct": 99,
+      "accuracy": 0.99,
+      "precision": 1.0,
+      "recall": 0.99,
+      "f1": 0.995,
+      "tp": 99,
+      "fp": 0,
+      "fn": 1,
+      "tn": 0,
+      "unclassified": 0,
+      "obf_by_type": {
+        "base64": {
+          "total": 29,
+          "correct": 28,
+          "recall": 0.9655172413793104
+        },
+        "string_split": {
+          "total": 21,
+          "correct": 21,
+          "recall": 1.0
+        },
+        "xor": {
+          "total": 29,
+          "correct": 29,
+          "recall": 1.0
+        },
+        "comment_bypass": {
+          "total": 21,
+          "correct": 21,
+          "recall": 1.0
+        }
+      },
+      "avg_latency_ms": 8613.3,
+      "avg_tokens": 12113.2,
+      "error_count": 1
+    },
+    "cot_deepseek": {
+      "label": "CoT-DeepSeek",
+      "total_samples": 100,
+      "correct": 49,
+      "accuracy": 0.49,
+      "precision": 1.0,
+      "recall": 0.98,
+      "f1": 0.9899,
+      "tp": 49,
+      "fp": 0,
+      "fn": 1,
+      "tn": 0,
+      "unclassified": 50,
+      "obf_by_type": {
+        "base64": {
+          "total": 29,
+          "correct": 10,
+          "recall": 0.3448275862068966
+        },
+        "string_split": {
+          "total": 21,
+          "correct": 14,
+          "recall": 0.6666666666666666
+        },
+        "xor": {
+          "total": 29,
+          "correct": 12,
+          "recall": 0.41379310344827586
+        },
+        "comment_bypass": {
+          "total": 21,
+          "correct": 13,
+          "recall": 0.6190476190476191
+        }
+      },
+      "avg_latency_ms": 28540.3,
+      "avg_tokens": 13770.0,
+      "error_count": 51
+    },
+    "traditional": {
+      "label": "传统工具(规则引擎)",
+      "total_samples": 100,
+      "correct": 92,
+      "accuracy": 0.92,
+      "precision": 1.0,
+      "recall": 0.92,
+      "f1": 0.9583,
+      "tp": 92,
+      "fp": 0,
+      "fn": 8,
+      "tn": 0,
+      "unclassified": 0,
+      "obf_by_type": {
+        "base64": {
+          "total": 29,
+          "correct": 29,
+          "recall": 1.0
+        },
+        "string_split": {
+          "total": 21,
+          "correct": 13,
+          "recall": 0.6190476190476191
+        },
+        "xor": {
+          "total": 29,
+          "correct": 29,
+          "recall": 1.0
+        },
+        "comment_bypass": {
+          "total": 21,
+          "correct": 21,
+          "recall": 1.0
+        }
+      },
+      "avg_latency_ms": 0,
+      "avg_tokens": 0,
+      "error_count": 8
+    },
+    "zero_shot_deepseek": {
+      "label": "Zero-shot-DeepSeek",
+      "total_samples": 100,
+      "correct": 95,
+      "accuracy": 0.95,
+      "precision": 1.0,
+      "recall": 0.95,
+      "f1": 0.95,
+      "obf_by_type": {
+        "base64": {
+          "recall": 0.931
+        },
+        "string_split": {
+          "recall": 1.0
+        },
+        "xor": {
+          "recall": 0.931
+        },
+        "comment_bypass": {
+          "recall": 0.9524
+        }
+      },
+      "note": "仅有汇总 metrics，无逐条原始结果"
+    }
+  },
+  "comparison_matrix": {
+    "two_stage_deepseek": {
+      "label": "两阶段-DeepSeek",
+      "by_type": {
+        "base64": 0.9655172413793104,
+        "string_split": 1.0,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "two_stage_qwen": {
+      "label": "两阶段-通义千问",
+      "by_type": {
+        "base64": 0.9655172413793104,
+        "string_split": 1.0,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "few_shot_deepseek": {
+      "label": "Few-shot-DeepSeek",
+      "by_type": {
+        "base64": 0.9655172413793104,
+        "string_split": 1.0,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "cot_deepseek": {
+      "label": "CoT-DeepSeek",
+      "by_type": {
+        "base64": 0.3448275862068966,
+        "string_split": 0.6666666666666666,
+        "xor": 0.41379310344827586,
+        "comment_bypass": 0.6190476190476191
+      }
+    },
+    "traditional": {
+      "label": "传统工具(规则引擎)",
+      "by_type": {
+        "base64": 1.0,
+        "string_split": 0.6190476190476191,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "zero_shot_deepseek": {
+      "label": "Zero-shot-DeepSeek",
+      "by_type": {
+        "base64": 0.931,
+        "string_split": 1.0,
+        "xor": 0.931,
+        "comment_bypass": 0.9524
+      }
+    }
+  },
+  "key_findings": {
+    "llm_vs_traditional_accuracy_diff": 0.07,
+    "llm_vs_traditional_recall_diff": 0.07,
+    "hardest_obfuscation_for_traditional": "string_split",
+    "cot_weakness": "CoT 策略在混淆样本上表现最差(49%)，主要因输出格式不稳定导致63条未分类",
+    "two_stage_advantage": "两阶段方案通过 Few-shot 快筛+CoT 复审，混淆识别率达99%，仅1条错判"
+  }
+}

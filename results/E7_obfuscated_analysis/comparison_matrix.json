@@ -1,0 +1,66 @@
+{
+  "export_time": "2026-08-08T20:02:52.626278",
+  "description": "混淆类型×实验 识别率矩阵，用于论文图4热力图",
+  "obfuscation_types": [
+    "base64",
+    "string_split",
+    "xor",
+    "comment_bypass"
+  ],
+  "matrix": {
+    "two_stage_deepseek": {
+      "label": "两阶段-DeepSeek",
+      "by_type": {
+        "base64": 0.9655172413793104,
+        "string_split": 1.0,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "two_stage_qwen": {
+      "label": "两阶段-通义千问",
+      "by_type": {
+        "base64": 0.9655172413793104,
+        "string_split": 1.0,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "few_shot_deepseek": {
+      "label": "Few-shot-DeepSeek",
+      "by_type": {
+        "base64": 0.9655172413793104,
+        "string_split": 1.0,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "cot_deepseek": {
+      "label": "CoT-DeepSeek",
+      "by_type": {
+        "base64": 0.3448275862068966,
+        "string_split": 0.6666666666666666,
+        "xor": 0.41379310344827586,
+        "comment_bypass": 0.6190476190476191
+      }
+    },
+    "traditional": {
+      "label": "传统工具(规则引擎)",
+      "by_type": {
+        "base64": 1.0,
+        "string_split": 0.6190476190476191,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "zero_shot_deepseek": {
+      "label": "Zero-shot-DeepSeek",
+      "by_type": {
+        "base64": 0.931,
+        "string_split": 1.0,
+        "xor": 0.931,
+        "comment_bypass": 0.9524
+      }
+    }
+  }
+}

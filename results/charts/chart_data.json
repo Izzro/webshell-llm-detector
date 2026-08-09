@@ -1,0 +1,270 @@
+{
+  "export_time": "2026-08-08T21:53:31.109692",
+  "experiments": {
+    "E1_zero_shot_ds": {
+      "label": "Zero-shot",
+      "strategy": "zero_shot",
+      "provider": "deepseek",
+      "accuracy": 0.9728,
+      "precision": 1.0,
+      "recall": 0.9433,
+      "f1": 0.9708,
+      "tp": 233,
+      "fp": 0,
+      "fn": 14,
+      "tn": 268,
+      "unclassified": 5,
+      "avg_latency_ms": 4663.2,
+      "total_tokens": 2500293,
+      "obfuscation_recall": 0.95,
+      "obf_by_type": {
+        "base64": 0.931,
+        "comment_bypass": 0.9524,
+        "string_split": 1.0,
+        "xor": 0.931
+      },
+      "type_consistency": 0.8907
+    },
+    "E2_few_shot_ds": {
+      "label": "Few-shot",
+      "strategy": "few_shot",
+      "provider": "deepseek",
+      "accuracy": 0.9845,
+      "precision": 1.0,
+      "recall": 0.9676,
+      "f1": 0.9835,
+      "tp": 239,
+      "fp": 0,
+      "fn": 8,
+      "tn": 268,
+      "unclassified": 0,
+      "avg_latency_ms": 3897.6,
+      "total_tokens": 2825854,
+      "obfuscation_recall": 0.99,
+      "obf_by_type": {
+        "base64": 0.9655,
+        "comment_bypass": 1.0,
+        "string_split": 1.0,
+        "xor": 1.0
+      },
+      "type_consistency": 0.8826
+    },
+    "E3_cot_ds": {
+      "label": "CoT",
+      "strategy": "cot",
+      "provider": "deepseek",
+      "accuracy": 0.8621,
+      "precision": 1.0,
+      "recall": 0.7126,
+      "f1": 0.8322,
+      "tp": 176,
+      "fp": 0,
+      "fn": 71,
+      "tn": 268,
+      "unclassified": 63,
+      "avg_latency_ms": 14801.1,
+      "total_tokens": 3162373,
+      "obfuscation_recall": 0.49,
+      "obf_by_type": {
+        "base64": 0.3448,
+        "comment_bypass": 0.619,
+        "string_split": 0.6667,
+        "xor": 0.4138
+      },
+      "type_consistency": 0.6842
+    },
+    "TS_ds": {
+      "label": "两阶段-DeepSeek",
+      "strategy": "two_stage",
+      "provider": "deepseek",
+      "accuracy": 0.9845,
+      "precision": 1.0,
+      "recall": 0.9676,
+      "f1": 0.9835,
+      "tp": 239,
+      "fp": 0,
+      "fn": 8,
+      "tn": 268,
+      "unclassified": 1,
+      "avg_latency_ms": 4338.1,
+      "total_tokens": 2831297,
+      "obfuscation_recall": 0.99,
+      "obf_by_type": {
+        "base64": 0.9655,
+        "comment_bypass": 1.0,
+        "string_split": 1.0,
+        "xor": 1.0
+      },
+      "type_consistency": 0.9069
+    },
+    "TS_qwen": {
+      "label": "两阶段-通义千问",
+      "strategy": "two_stage",
+      "provider": "qwen",
+      "accuracy": 0.9845,
+      "precision": 1.0,
+      "recall": 0.9676,
+      "f1": 0.9835,
+      "tp": 239,
+      "fp": 0,
+      "fn": 8,
+      "tn": 268,
+      "unclassified": 2,
+      "avg_latency_ms": 27155.2,
+      "total_tokens": 3547041,
+      "obfuscation_recall": 0.99,
+      "obf_by_type": {
+        "base64": 0.9655,
+        "comment_bypass": 1.0,
+        "string_split": 1.0,
+        "xor": 1.0
+      },
+      "type_consistency": 0.9109
+    },
+    "E8_traditional": {
+      "label": "传统工具",
+      "strategy": "traditional",
+      "provider": "rule_based",
+      "accuracy": 0.8272,
+      "precision": 0.8062,
+      "recall": 0.8421,
+      "f1": 0.8238,
+      "tp": 208,
+      "fp": 50,
+      "fn": 39,
+      "tn": 218,
+      "unclassified": 0,
+      "avg_latency_ms": 0.0,
+      "total_tokens": 0,
+      "obfuscation_recall": 0.92,
+      "obf_by_type": {
+        "base64": 1.0,
+        "comment_bypass": 1.0,
+        "string_split": 0.619,
+        "xor": 1.0
+      },
+      "type_consistency": 0.7814
+    }
+  },
+  "fp_fn_data": {
+    "E2_few_shot_ds": {
+      "label": "Few-shot",
+      "fp_count": 0,
+      "fn_count": 8,
+      "unknown_count": 0,
+      "fp_by_category": {},
+      "fn_by_category": {
+        "webshell": 7,
+        "obfuscated": 1
+      }
+    },
+    "E3_cot_ds": {
+      "label": "CoT",
+      "fp_count": 0,
+      "fn_count": 8,
+      "unknown_count": 63,
+      "fp_by_category": {},
+      "fn_by_category": {
+        "webshell": 7,
+        "obfuscated": 1
+      }
+    },
+    "TS_ds": {
+      "label": "两阶段-DeepSeek",
+      "fp_count": 0,
+      "fn_count": 7,
+      "unknown_count": 1,
+      "fp_by_category": {},
+      "fn_by_category": {
+        "webshell": 6,
+        "obfuscated": 1
+      }
+    },
+    "TS_qwen": {
+      "label": "两阶段-通义千问",
+      "fp_count": 0,
+      "fn_count": 6,
+      "unknown_count": 2,
+      "fp_by_category": {},
+      "fn_by_category": {
+        "webshell": 6
+      }
+    },
+    "E8_traditional": {
+      "label": "传统工具",
+      "fp_count": 50,
+      "fn_count": 39,
+      "unknown_count": 0,
+      "fp_by_category": {
+        "benign": 50
+      },
+      "fn_by_category": {
+        "webshell": 26,
+        "sqli": 5,
+        "obfuscated": 8
+      }
+    }
+  },
+  "e7_matrix": {
+    "two_stage_deepseek": {
+      "label": "两阶段-DeepSeek",
+      "by_type": {
+        "base64": 0.9655172413793104,
+        "string_split": 1.0,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "two_stage_qwen": {
+      "label": "两阶段-通义千问",
+      "by_type": {
+        "base64": 0.9655172413793104,
+        "string_split": 1.0,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "few_shot_deepseek": {
+      "label": "Few-shot-DeepSeek",
+      "by_type": {
+        "base64": 0.9655172413793104,
+        "string_split": 1.0,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "cot_deepseek": {
+      "label": "CoT-DeepSeek",
+      "by_type": {
+        "base64": 0.3448275862068966,
+        "string_split": 0.6666666666666666,
+        "xor": 0.41379310344827586,
+        "comment_bypass": 0.6190476190476191
+      }
+    },
+    "traditional": {
+      "label": "传统工具(规则引擎)",
+      "by_type": {
+        "base64": 1.0,
+        "string_split": 0.6190476190476191,
+        "xor": 1.0,
+        "comment_bypass": 1.0
+      }
+    },
+    "zero_shot_deepseek": {
+      "label": "Zero-shot-DeepSeek",
+      "by_type": {
+        "base64": 0.931,
+        "string_split": 1.0,
+        "xor": 0.931,
+        "comment_bypass": 0.9524
+      }
+    }
+  },
+  "obfuscation_types": [
+    "base64",
+    "string_split",
+    "xor",
+    "comment_bypass"
+  ]
+}

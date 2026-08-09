@@ -9,6 +9,13 @@ results/metrics/
 results/cache/
 results/logs/
 
+# 大体积原始结果文件（仅保留 metrics.json）
+results/E_*/raw_results.json
+results/E_*/summary.csv
+
+# 第三方库文件（通过CDN加载）
+results/charts/echarts.min.js
+
 # ====== 数据集样本（体积大，按需提交）======
 data/samples/webshell/
 data/samples/obfuscated/
