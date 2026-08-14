@@ -119,8 +119,8 @@ class CacheManager:
 class ConcurrentDetector:
     """并发 LLM 检测器，使用线程池并行调用 API。"""
 
-    # JSON 模式策略
-    JSON_MODE_STRATEGIES = {"zero_shot", "few_shot"}
+    # JSON 模式策略（三组策略统一使用 JSON 模式）
+    JSON_MODE_STRATEGIES = {"zero_shot", "few_shot", "cot"}
 
     def __init__(
         self,
@@ -323,6 +323,7 @@ class TwoStagePipeline:
         concurrency: int = 5,
         confidence_threshold: float = 0.9,
         config_path: str | None = None,
+        use_cache: bool = True,
     ):
         """
         Args:
@@ -330,10 +331,12 @@ class TwoStagePipeline:
             concurrency: 并发数
             confidence_threshold: Stage2 复核的置信度阈值
             config_path: 配置文件路径
+            use_cache: 是否启用缓存（禁用可确保实验独立性）
         """
         self.provider = provider
         self.concurrency = concurrency
         self.confidence_threshold = confidence_threshold
+        self.use_cache = use_cache
 
         config = load_config(config_path)
         self.config = config
@@ -356,9 +359,14 @@ class TwoStagePipeline:
         self.fs_prompt = PromptTemplate(strategy="few_shot")
         self.cot_prompt = PromptTemplate(strategy="cot")
 
-        # 缓存（带磁盘持久化，支持断点续跑）
-        cache_file = os.path.join(PROJECT_ROOT, "results", "cache", f"cache_{provider}.json")
-        self.cache = CacheManager(cache_file=cache_file)
+        # 缓存（带磁盘持久化，支持断点续跑）；禁用缓存时设为 None
+        if use_cache:
+            cache_file = os.path.join(PROJECT_ROOT, "results", "cache", f"cache_{provider}.json")
+            self.cache = CacheManager(cache_file=cache_file)
+            logger.info(f"缓存已启用: {cache_file}")
+        else:
+            self.cache = None
+            logger.info("缓存已禁用，所有样本将通过 API 实时检测")
 
         # 并发检测器（Stage1 用 Few-shot JSON 模式）
         self.fs_detector = ConcurrentDetector(
@@ -427,13 +435,14 @@ class TwoStagePipeline:
             samples=samples,
             strategy="few_shot",
             provider=self.provider,
-            cache=self.cache,
+            cache=self.cache if self.use_cache else None,
             progress_label="[Stage1] ",
         )
         stage1_time = time.time() - stage1_start
 
-        # Stage1 结束后保存缓存
-        self.cache.save_to_disk()
+        # Stage1 结束后保存缓存（仅缓存启用时）
+        if self.use_cache and self.cache:
+            self.cache.save_to_disk()
 
         # 统计 Stage1 结果
         s1_correct = sum(1 for r in stage1_results if r.get("correct") == 1)
@@ -474,7 +483,7 @@ class TwoStagePipeline:
                 samples=review_samples,
                 strategy="cot",
                 provider=self.provider,
-                cache=self.cache,
+                cache=self.cache if self.use_cache else None,
                 progress_label="[Stage2] ",
             )
             stage2_time = time.time() - stage2_start
@@ -526,6 +535,7 @@ class TwoStagePipeline:
         logger.info("=" * 50)
         logger.info("两段式管道完成")
         logger.info("=" * 50)
+        _cache_hits = self.cache.hits if (self.use_cache and self.cache) else 0
         logger.info(
             f"总耗时: {pipeline_time:.1f}s ({pipeline_time/60:.1f}分钟)\n"
             f"  Stage1 (Few-shot 并发): {stage1_time:.1f}s\n"
@@ -533,14 +543,21 @@ class TwoStagePipeline:
             f"  准确率: {metrics['accuracy']*100:.1f}%\n"
             f"  F1: {metrics['f1']:.4f}\n"
             f"  CoT 纠正: {cot_corrections} 条\n"
-            f"  缓存命中: {self.cache.hits} 条"
+            f"  缓存命中: {_cache_hits} 条"
         )
 
         # ---- 5. 导出 ----
-        # 最终保存缓存
-        self.cache.save_to_disk()
+        # 最终保存缓存（仅缓存启用时）
+        if self.use_cache and self.cache:
+            self.cache.save_to_disk()
 
         # 添加管道统计信息到 metrics
+        cache_stats = self.cache.stats() if (self.use_cache and self.cache) else {
+            "cache_hits": 0,
+            "cache_misses": 0,
+            "cache_hit_rate": 0.0,
+            "cache_size": 0,
+        }
         metrics["pipeline"] = {
             "total_time_s": round(pipeline_time, 1),
             "stage1_time_s": round(stage1_time, 1),
@@ -550,7 +567,8 @@ class TwoStagePipeline:
             "cot_corrections": cot_corrections,
             "concurrency": self.concurrency,
             "confidence_threshold": self.confidence_threshold,
-            "cache_stats": self.cache.stats(),
+            "cache_stats": cache_stats,
+            "cache_enabled": self.use_cache,
         }
 
         experiment_name = f"E_two_stage_{self.provider}"
@@ -572,7 +590,7 @@ class TwoStagePipeline:
             "stage1_samples": s1_total,
             "stage2_reviewed": len(review_samples),
             "cot_corrections": cot_corrections,
-            "cache_stats": self.cache.stats(),
+            "cache_stats": cache_stats,
         }
 
     @staticmethod
@@ -626,6 +644,10 @@ def main():
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
         help="日志级别"
     )
+    parser.add_argument(
+        "--no-cache", action="store_true", default=False,
+        help="禁用缓存，确保实验独立性（所有样本通过 API 实时检测）"
+    )
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -638,6 +660,7 @@ def main():
         provider=args.provider,
         concurrency=args.concurrency,
         confidence_threshold=args.confidence_threshold,
+        use_cache=not args.no_cache,
     )
 
     result = pipeline.run(

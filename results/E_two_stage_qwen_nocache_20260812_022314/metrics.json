@@ -1,0 +1,55 @@
+{
+  "export_time": "2026-08-12T02:23:14.957919",
+  "total_samples": 652,
+  "accuracy": 0.9893,
+  "precision": 1.0,
+  "recall": 0.9818,
+  "f1": 0.9908,
+  "tp": 377,
+  "tn": 268,
+  "fp": 0,
+  "fn": 7,
+  "unclassified": 0,
+  "obfuscation_recall": 1.0,
+  "obf_total": 237,
+  "obf_correct": 237,
+  "obf_by_type": {
+    "base64": 1.0,
+    "comment_bypass": 1.0,
+    "string_split": 1.0,
+    "xor": 1.0,
+    "combined_base64_comment": 1.0,
+    "combined_base64_string_split": 1.0,
+    "combined_xor_comment": 1.0,
+    "combined_string_split_comment": 1.0,
+    "combined_base64_xor": 1.0
+  },
+  "type_consistency": 0.9167,
+  "avg_latency_ms": 31958.3,
+  "max_latency_ms": 290567,
+  "min_latency_ms": 8846,
+  "total_tokens": 6294582,
+  "avg_tokens": 9654.3,
+  "pipeline": {
+    "total_time_s": 0.0,
+    "stage1_time_s": 20421.2,
+    "stage2_time_s": 415.6,
+    "stage1_samples": 652,
+    "stage2_reviewed": 2,
+    "cot_corrections": 2,
+    "concurrency": 5,
+    "confidence_threshold": 0.9,
+    "cache_stats": {
+      "cache_hits": 0,
+      "cache_misses": 0,
+      "cache_hit_rate": 0.0,
+      "cache_size": 0
+    },
+    "cache_enabled": false,
+    "reconstructed_from": {
+      "stage1_source": "E_few_shot_qwen_20260810_234939",
+      "stage2_source": "E_cot_qwen_20260811_165941",
+      "note": "从独立实验结果重建，等效于禁用缓存的两阶段管道"
+    }
+  }
+}

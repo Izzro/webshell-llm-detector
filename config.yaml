@@ -11,14 +11,14 @@ providers:
   deepseek:
     base_url: "https://api.deepseek.com"
     api_key_env: "DEEPSEEK_API_KEY"          # 从环境变量读取
-    model: "deepseek-v4-flash"                # DeepSeek V4 Flash（2026-07-24 起替代 deepseek-chat）
+    model: "deepseek-v4-flash"                # DeepSeek V4 Flash
     max_tokens: 4096
     temperature: 0.1                          # 低温度保证结果稳定可复现
 
   qwen:
     base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
     api_key_env: "DASHSCOPE_API_KEY"          # 从环境变量读取
-    model: "qwen3.6-plus"                     # 通义千问 3.6 Plus（百炼平台最新）
+    model: "qwen3.6-plus"                     # 通义千问 3.6 Plus
     max_tokens: 4096
     temperature: 0.1
 

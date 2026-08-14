@@ -16,7 +16,9 @@ import os
 import sys
 import json
 import csv
+import re
 import logging
+import threading
 from collections import Counter
 
 # 确保项目根目录在 sys.path 中
@@ -51,6 +53,45 @@ CONFIG = load_config()
 # 传统扫描器（纯规则，无需 API Key）
 traditional_scanner = TraditionalScanner()
 result_parser = ResultParser()
+
+# ============================================================
+# LLMClient 实例缓存（全局复用，线程安全）
+# ============================================================
+# LLMClient 在构造后是无状态的：detect() 仅读取 __init__ 中设置的字段，
+# 且其内部持有的 OpenAI SDK 客户端（基于 httpx）线程安全，
+# 因此可在多线程请求中安全复用同一个实例，避免每次请求重复创建客户端。
+_llm_clients: dict[str, LLMClient] = {}
+_llm_client_lock = threading.Lock()
+
+# 启动时预创建各 provider 的客户端；API Key 未配置时跳过，延迟到首次请求
+for _provider_name in CONFIG.get("providers", {}):
+    try:
+        _llm_clients[_provider_name] = LLMClient(
+            provider=_provider_name, config=CONFIG
+        )
+        logger.info(f"LLMClient 预创建成功: provider={_provider_name}")
+    except ValueError as e:
+        # API Key 未配置等配置问题：记录警告，首次请求时再尝试创建
+        logger.warning(f"LLMClient 预创建跳过 ({_provider_name}): {e}")
+
+
+def _get_llm_client(provider: str) -> LLMClient:
+    """获取（或创建并缓存）指定 provider 的 LLMClient 实例，全局复用。
+
+    采用双重检查锁定（double-checked locking）保证线程安全：
+    命中缓存时无需加锁，仅未命中时进入临界区创建实例。
+    """
+    client = _llm_clients.get(provider)
+    if client is not None:
+        return client
+    with _llm_client_lock:
+        # 再次检查，防止多线程下重复创建
+        client = _llm_clients.get(provider)
+        if client is None:
+            client = LLMClient(provider=provider, config=CONFIG)
+            _llm_clients[provider] = client
+            logger.info(f"LLMClient 延迟创建并缓存: provider={provider}")
+    return client
 
 
 # ============================================================
@@ -128,7 +169,7 @@ def api_detect():
 
     # ---- 2. LLM 检测 ----
     try:
-        llm_client = LLMClient(provider=provider, config=CONFIG)
+        llm_client = _get_llm_client(provider)
         prompt_template = PromptTemplate(strategy=strategy)
 
         messages = prompt_template.build_messages(
@@ -136,7 +177,7 @@ def api_detect():
             language=language,
         )
 
-        use_json = strategy in PromptTemplate.SUPPORTED_STRATEGIES[:2]  # zero_shot, few_shot
+        use_json = True  # 三组策略统一使用 JSON 模式
         raw_result, usage = llm_client.detect(
             messages=messages,
             use_json=use_json,
@@ -308,8 +349,7 @@ _EXAMPLES = {
 @app.route("/api/example")
 def api_example():
     """返回示例代码（从后端提供，避免前端JS文件含恶意模式）"""
-    from flask import request as flask_request
-    example_type = flask_request.args.get("type", "")
+    example_type = request.args.get("type", "")
     code = _EXAMPLES.get(example_type, "")
     if not code:
         return jsonify({"error": f"未知示例类型: {example_type}"}), 404
@@ -317,17 +357,83 @@ def api_example():
 
 
 def _detect_language(code_text: str) -> str:
-    """根据代码内容自动检测语言"""
+    """根据代码内容自动检测语言。
+
+    检测顺序：PHP → Python → SQL → ASP → JSP → unknown。
+    各语言使用多重特征匹配，避免单一特征导致的误判。
+
+    修复要点：
+    1. 原 Python 检测存在运算符优先级 bug：
+       ``"def " in code_text or "import " in code_text and "$_POST" not in code_text``
+       由于 ``and`` 优先级高于 ``or``，实际等价于
+       ``"def " in code_text or ("import " in code_text and "$_POST" not in code_text)``
+       导致含 ``$_POST`` 的 PHP 代码只要出现 ``def `` 字符串即被误判为 Python。
+       现已用括号显式分组并排除 PHP 超全局变量。
+    2. PHP 检测增加超全局变量（$_POST/$_GET/...）作为无标签片段的判据。
+    3. Python 检测增加 print()、from...import、__main__ 等特征。
+    4. SQL 检测扩充为布尔盲注、时间盲注、堆叠注入、信息采集等模式。
+    """
+    # ---- PHP ----
+    # PHP 标签（标准 <?php 与短标签 <?=）
     if "<?php" in code_text or "<?=" in code_text:
         return "php"
-    if "def " in code_text or "import " in code_text and "$_POST" not in code_text:
+    # PHP 超全局数组（用于无 <?php 标签的 PHP 片段，如 webshell 残片）
+    if re.search(r"\$_(POST|GET|REQUEST|SERVER|COOKIE|FILES)\s*\[", code_text):
+        return "php"
+
+    # ---- Python ----
+    # 排除 PHP 超全局变量，避免将 PHP 误判为 Python
+    has_php_superglobal = bool(
+        re.search(r"\$_(POST|GET|REQUEST|SERVER|COOKIE|FILES)", code_text)
+    )
+    python_indicators = (
+        "import " in code_text,
+        "from " in code_text and " import " in code_text,
+        "def " in code_text,
+        "print(" in code_text,
+        "print (" in code_text,
+        "if __name__" in code_text,
+        re.search(r"^\s*#", code_text, re.MULTILINE) is not None
+        and ("def " in code_text or "import " in code_text),
+    )
+    if any(python_indicators) and not has_php_superglobal:
         return "python"
-    if "UNION SELECT" in code_text.upper() or "SLEEP(" in code_text.upper():
+
+    # ---- SQL ----
+    code_upper = code_text.upper()
+    sql_keywords = (
+        "UNION SELECT" in code_upper,
+        "UNION ALL SELECT" in code_upper,
+        "SLEEP(" in code_upper,
+        "BENCHMARK(" in code_upper,
+        "PG_SLEEP(" in code_upper,
+        "INFORMATION_SCHEMA" in code_upper,
+        "GROUP_CONCAT(" in code_upper,
+        "CONCAT(" in code_upper,
+        "LOAD_FILE(" in code_upper,
+        "INTO OUTFILE" in code_upper,
+        "INTO DUMPFILE" in code_upper,
+        "EXTRACTVALUE(" in code_upper,
+        "UPDATEXML(" in code_upper,
+    )
+    # 布尔盲注：' OR '1'='1 / OR 1=1 / AND 1=1
+    boolean_blind = bool(
+        re.search(r"(?i)\b(or|and)\b\s+'?\d+'?\s*=\s*'?\d+", code_text)
+    )
+    # SQL 行注释（--）配合 SELECT 关键字，常见于 SQL 注入载荷
+    # 仅检测 "--" 而非 "#"，避免与 Python 的 # 注释混淆导致误判
+    comment_select = "SELECT" in code_upper and "--" in code_text
+    if any(sql_keywords) or boolean_blind or comment_select:
         return "sql"
-    if "<%@" in code_text or "asp" in code_text.lower():
+
+    # ---- ASP / ASPX ----
+    if "<%@" in code_text or "<%" in code_text:
         return "asp"
-    if "<%=" in code_text or "jsp" in code_text.lower():
+
+    # ---- JSP ----
+    if "<%=" in code_text or "<% " in code_text:
         return "jsp"
+
     return "unknown"
 
 
@@ -340,4 +446,9 @@ if __name__ == "__main__":
     print("  LLM 恶意代码检测平台")
     print("  访问地址: http://localhost:5000")
     print("=" * 60)
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # debug 模式默认关闭；如需调试可设置环境变量 FLASK_DEBUG=1
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=os.environ.get("FLASK_DEBUG", "0") == "1",
+    )

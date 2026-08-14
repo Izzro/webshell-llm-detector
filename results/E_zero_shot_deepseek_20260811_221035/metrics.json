@@ -1,0 +1,33 @@
+{
+  "export_time": "2026-08-11T22:10:35.481972",
+  "total_samples": 652,
+  "accuracy": 0.9755,
+  "precision": 1.0,
+  "recall": 0.9583,
+  "f1": 0.9787,
+  "tp": 368,
+  "tn": 268,
+  "fp": 0,
+  "fn": 16,
+  "unclassified": 6,
+  "obfuscation_recall": 0.9662,
+  "obf_total": 237,
+  "obf_correct": 229,
+  "obf_by_type": {
+    "base64": 0.9655,
+    "comment_bypass": 0.9524,
+    "string_split": 1.0,
+    "xor": 0.9655,
+    "combined_base64_comment": 1.0,
+    "combined_base64_string_split": 0.8966,
+    "combined_xor_comment": 0.931,
+    "combined_string_split_comment": 1.0,
+    "combined_base64_xor": 1.0
+  },
+  "type_consistency": 0.8932,
+  "avg_latency_ms": 6229.0,
+  "max_latency_ms": 33801,
+  "min_latency_ms": 0,
+  "total_tokens": 4638375,
+  "avg_tokens": 7114.1
+}

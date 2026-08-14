@@ -104,6 +104,7 @@ class ResultParser:
         1. ```json ... ``` 代码块
         2. ``` ... ``` 代码块（无语言标记）
         3. 第一个 { 到最后一个 } 的子串（裸 JSON）
+        4. 逐步修复后重试（去除尾逗号、补全括号）
 
         Args:
             text: 包含分析过程和 JSON 结论的混合文本
@@ -114,12 +115,9 @@ class ResultParser:
         # 策略 1: ```json ... ``` 代码块
         match = re.search(r'```json\s*(.*?)\s*```', text, re.DOTALL)
         if match:
-            try:
-                data = json.loads(match.group(1))
-                if isinstance(data, dict):
-                    return data
-            except (json.JSONDecodeError, ValueError):
-                pass
+            data = self._try_parse_json(match.group(1))
+            if data is not None:
+                return data
 
         # 策略 2: ``` ... ``` 代码块（无语言标记）
         match = re.search(r'```\s*(.*?)\s*```', text, re.DOTALL)
@@ -128,24 +126,94 @@ class ResultParser:
             # 去掉可能的 "json" 前缀
             if block.lower().startswith("json"):
                 block = block[4:].strip()
-            try:
-                data = json.loads(block)
-                if isinstance(data, dict):
-                    return data
-            except (json.JSONDecodeError, ValueError):
-                pass
+            data = self._try_parse_json(block)
+            if data is not None:
+                return data
 
         # 策略 3: 第一个 { 到最后一个 } 的子串
         first_brace = text.find('{')
         last_brace = text.rfind('}')
         if first_brace != -1 and last_brace > first_brace:
             json_str = text[first_brace:last_brace + 1]
+            data = self._try_parse_json(json_str)
+            if data is not None:
+                return data
+
+        # 策略 4: 尝试从最后一个 { 开始提取（LLM 可能在 reasoning 中使用了 {）
+        all_braces = [i for i, ch in enumerate(text) if ch == '{']
+        for start_idx in reversed(all_braces):
+            end_idx = text.rfind('}')
+            if end_idx > start_idx:
+                json_str = text[start_idx:end_idx + 1]
+                data = self._try_parse_json(json_str)
+                if data is not None:
+                    return data
+
+        return None
+
+    def _try_parse_json(self, json_str: str) -> dict | None:
+        """
+        尝试解析 JSON 字符串，失败时尝试修复后重试。
+
+        修复策略：
+        1. 直接解析
+        2. 去除尾逗号（trailing comma）
+        3. 补全缺失的右括号
+        4. 提取最后一个完整 JSON 对象
+
+        Args:
+            json_str: 待解析的 JSON 字符串
+
+        Returns:
+            解析后的 dict，失败返回 None
+        """
+        # 1. 直接解析
+        try:
+            data = json.loads(json_str)
+            if isinstance(data, dict):
+                return data
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+        # 2. 去除尾逗号
+        repaired = re.sub(r',\s*([}\]])', r'\1', json_str)
+        try:
+            data = json.loads(repaired)
+            if isinstance(data, dict):
+                return data
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+        # 3. 补全缺失的右括号
+        open_braces = json_str.count('{')
+        close_braces = json_str.count('}')
+        open_brackets = json_str.count('[')
+        close_brackets = json_str.count(']')
+        if open_braces > close_braces or open_brackets > close_brackets:
+            suffix = '}' * max(0, open_braces - close_braces)
+            suffix += ']' * max(0, open_brackets - close_brackets)
             try:
-                data = json.loads(json_str)
+                data = json.loads(json_str + suffix)
                 if isinstance(data, dict):
                     return data
             except (json.JSONDecodeError, ValueError):
                 pass
+
+        # 4. 尝试逐字符截断找到最后一个可解析的 JSON
+        for i in range(len(json_str) - 1, 0, -1):
+            if json_str[i] == '}':
+                candidate = json_str[:i + 1]
+                # 找到对应的起始 {
+                start = candidate.rfind('{')
+                if start >= 0:
+                    sub = candidate[start:]
+                    repaired = re.sub(r',\s*([}\]])', r'\1', sub)
+                    try:
+                        data = json.loads(repaired)
+                        if isinstance(data, dict):
+                            return data
+                    except (json.JSONDecodeError, ValueError):
+                        continue
 
         return None
 

@@ -11,8 +11,8 @@
 设计要点：
 - language="unknown" 时省略语言标注，让 LLM 自行从代码语法判断（方案A）
 - 系统消息包含防护指引：空内容/乱码 → benign + confidence=0.0
-- Zero-shot/Few-shot 使用 JSON 模式（use_json=True），CoT 使用文本模式（use_json=False）
-- CoT 输出为分析过程 + ```json 代码块，由 result_parser._extract_json_from_text() 解析
+- 三组策略统一使用 JSON 模式（use_json=True），确保输出可解析
+- CoT 在 JSON 的 "reasoning" 字段中输出五步分析过程，避免文本模式解析失败
 
 使用方式：
     from src.prompt_templates import PromptTemplate
@@ -80,19 +80,18 @@ class PromptTemplate:
 }"""
 
     _JSON_FORMAT_COT = """\
-在分析过程结束后，输出以下 JSON 格式的结论（用 ```json 代码块包裹）：
-```json
+请严格按以下 JSON 格式输出，不要输出其他内容。在 "reasoning" 字段中写出五步分析过程，其余字段为最终结论：
 {
+    "reasoning": "第一步·代码结构概览：...\\n第二步·敏感函数识别：...\\n第三步·数据流追踪：...\\n第四步·混淆分析：...\\n第五步·综合判定：...",
     "label": "malicious 或 benign",
     "malware_type": "webshell/backdoor/sqli/none 之一",
     "subtype": "具体子类型描述",
     "obfuscation": "none/base64/string_split/xor/comment_bypass 之一",
     "confidence": 0.0 到 1.0 的置信度,
     "risk_level": "high/medium/low/none 之一",
-    "reason": "判定理由",
+    "reason": "判定理由（一句话总结）",
     "indicators": ["触发判定的关键函数或模式"]
-}
-```"""
+}"""
 
     # CoT 五步推理流程
     _COT_STEPS = """\
@@ -335,13 +334,12 @@ class PromptTemplate:
         """
         构建 CoT 思维链提示词。
 
-        消息结构：[system(角色+五步流程+规则+防护指引+JSON代码块格式), user(代码+引导语)]
-        use_json=False，LLM 先输出分析过程，最后输出 ```json 代码块。
-        解析由 result_parser._extract_json_from_text() 处理。
+        消息结构：[system(角色+五步流程+规则+防护指引+JSON格式含reasoning字段), user(代码)]
+        use_json=True，LLM 在 JSON 的 "reasoning" 字段中输出五步分析过程，
+        其余字段为最终结论。统一使用 JSON 模式避免文本模式下的解析失败。
         """
         system_prompt = self._build_system_prompt(use_cot=True)
         user_prompt = self._build_user_prompt(code_text, language)
-        user_prompt += "\n\n请按五步分析流程进行判定。"
         return [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},

@@ -37,8 +37,8 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 class BatchRunner:
     """批量检测主流程控制器。"""
 
-    # 策略与 JSON 模式映射（CoT 使用文本模式，其余使用 JSON 模式）
-    JSON_MODE_STRATEGIES = {"zero_shot", "few_shot"}
+    # 策略与 JSON 模式映射（三组策略统一使用 JSON 模式，确保输出可解析）
+    JSON_MODE_STRATEGIES = {"zero_shot", "few_shot", "cot"}
 
     def __init__(
         self,
